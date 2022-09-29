@@ -63,8 +63,6 @@ public class MainActivity extends AppCompatActivity {
     private static final boolean FLIP_FRAMES_VERTICALLY = true;
 
 
-
-
     static {
         // Load all native libraries needed by the app.
         System.loadLibrary("mediapipe_jni");
@@ -93,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     Point RShoulder,LShoulder,RHip,LHip,RKeen,LKeen,RAnkle,LAnkle,Nose;
     Point RElbow,LElbow,RWrist,LWrist;
     Point RHeel,LHeel,RIndex,LIndex;
+
 
     //用于显示计数结果的控件
     public static TextView tvCount;
@@ -176,10 +175,10 @@ public class MainActivity extends AppCompatActivity {
                         LIndex=feet_points[3];
 
                         //其他关键点获取可以写在这里
-                        
+
 
                         //按照自己的项目调用方式调用
-                        if (project=="obliquePullUps"){
+                        if (project.equals("obliquePullUps")){
                             //斜身引体动作检测开始
                             obliquePullUps.updatePoints(RShoulder,LShoulder,RHip,LHip,RKeen,LKeen,RAnkle,LAnkle,Nose,
                                     RElbow,LElbow,RWrist,LWrist,RHeel,LHeel,RIndex,LIndex);
@@ -187,11 +186,11 @@ public class MainActivity extends AppCompatActivity {
 
                         }
 
-                        else if (project=="pullUps"){
+                        else if (project.equals("pullUps")){
                             //引体向上动作检测开始
                         }
 
-                        else if (project=="SitUps"){
+                        else if (project.equals("SitUps")){
                             //仰卧起坐动作检测开始
                         }
                         else {
@@ -224,9 +223,13 @@ public class MainActivity extends AppCompatActivity {
 
         previewDisplayView = new SurfaceView(this);
         setupPreviewDisplayView();
-//        startDetection();
 
+        //用于选择项目的按钮控件
         Button button1=findViewById(R.id.button_1);
+        Button button2=findViewById(R.id.button_2);
+        Button button3=findViewById(R.id.button_3);
+        Button button4=findViewById(R.id.button_4);
+
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -238,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button button2=findViewById(R.id.button_2);
+
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -250,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button button3=findViewById(R.id.button_3);
+
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -262,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button button4=findViewById(R.id.button_4);
+
         button4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
