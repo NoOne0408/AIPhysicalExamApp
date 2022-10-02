@@ -1,5 +1,7 @@
 package com.example.mediapipeposetracking;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -25,6 +27,7 @@ import com.example.mediapipeposetracking.obliquePullUpsProject.FootModule;
 import com.example.mediapipeposetracking.obliquePullUpsProject.ObliquePullUps;
 import com.example.mediapipeposetracking.obliquePullUpsProject.Point;
 import com.example.mediapipeposetracking.obliquePullUpsProject.PoseTest;
+import com.example.mediapipeposetracking.pullup.PullUpActivity;
 import com.google.mediapipe.formats.proto.LandmarkProto;
 import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmarkList;
 import com.google.mediapipe.components.CameraHelper;
@@ -48,6 +51,7 @@ import java.util.TimerTask;
  * Main activity of MediaPipe example apps.
  */
 public class MainActivity extends AppCompatActivity {
+
     private static final String TAG = "XXX";
     private static final String BINARY_GRAPH_NAME = "pose_tracking_gpu.binarypb";
     private static final String INPUT_VIDEO_STREAM_NAME = "input_video";
@@ -61,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     // This is needed because OpenGL represents images assuming the image origin is at the bottom-left
     // corner, whereas MediaPipe in general assumes the image origin is at top-left.
     private static final boolean FLIP_FRAMES_VERTICALLY = true;
+    private Context context=this;
 
 
     static {
@@ -245,11 +250,8 @@ public class MainActivity extends AppCompatActivity {
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在其中写入响应方法
-                System.out.println("引体向上项目检测");
-                button2.setText("引体向上检测");
-                onResumeTest();
-                poseDetection("pullUps");
+                Intent intent=new Intent(context, PullUpActivity.class);
+                startActivity(intent);
             }
         });
 
