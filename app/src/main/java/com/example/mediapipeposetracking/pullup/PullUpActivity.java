@@ -2,9 +2,11 @@ package com.example.mediapipeposetracking.pullup;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.Camera;
 
 import com.example.mediapipeposetracking.R;
 import com.google.mediapipe.components.CameraHelper;
@@ -32,6 +35,8 @@ import com.google.mediapipe.framework.AndroidAssetUtil;
 import com.google.mediapipe.framework.PacketGetter;
 import com.google.mediapipe.glutil.EglManager;
 import com.google.protobuf.InvalidProtocolBufferException;
+
+import java.util.Date;
 
 public class PullUpActivity extends AppCompatActivity {
 
@@ -53,14 +58,15 @@ public class PullUpActivity extends AppCompatActivity {
     static {System.loadLibrary("mediapipe_jni");System.loadLibrary("opencv_java3");}//加载应用程序所需的所有本机库,mediapipe依赖//opencv依赖//这俩个so文件都包含在arr库中，
 
     //自己加的依赖
-    private TextView showData,showData2,showData3,showData4,showData5;//提示输出框
+    private SurfaceView sv_test;
+    private TextView tv_count,tv_hintinfo,no_camera_access_view;//tv_arc;
     private int findFirstCorrectFrameFlag=0;//找到初始正确位置帧，0代表未找到，1代表找到
     private int isCorrectElbowAngleFlag=0;//判断肘部角度是否满足条件，0代表不满足，1代表满足
     private int isFinishedFlag=0;//判断动作是否结束，0代表未结束，1代表结束
     private int frameIndex=0;//帧序号
     private int num=0;//正确次数
     int frameNum=0; //帧数
-    private float hightOfPole=0;//杠高
+    private float heightOfPole=0;//杠高
     private float shouldIsUp=0;//肩膀是否在上升，0代表正在下降，1代表正在升高
     private Handler handler = new Handler() {
         @Override
@@ -68,28 +74,17 @@ public class PullUpActivity extends AppCompatActivity {
             super.handleMessage(msg);
             switch (msg.what) {
                 case 1:
-                    String str = msg.getData().getString("text1");//接受msg传递过来的参数
-                    String strr = msg.getData().getString("text2");//接受msg传递过来的参数
-                    showData2.setText("开始帧："+str+"，杠高："+strr+"px");
+                    String actionCount = msg.getData().getString("actionCount");//接受msg传递过来的参数
+                    tv_count.setText(actionCount);
                     break;
                 case 2:
-                    String str1 = msg.getData().getString("text1");//接受msg传递过来的参数
-                    showData4.setText(str1);
+                    String hintInfo = msg.getData().getString("hintInfo");//接受msg传递过来的参数
+                    tv_hintinfo.setText(hintInfo);
                     break;
-                case 3:
-                    String str2 = msg.getData().getString("text1");//接受msg传递过来的参数
-                    String str22 = msg.getData().getString("text2");//接受msg传递过来的参数
-                    String str222 = msg.getData().getString("text3");//接受msg传递过来的参数
-                    showData3.setText("计数："+str2+",度数:"+str22+"||"+str222);
-                    break;
-                case 4:
-                    String str4 = msg.getData().getString("text1");//接受msg传递过来的参数
-                    String str44 = msg.getData().getString("text2");//接受msg传递过来的参数
-                    showData.setText(str4+"|"+str44);
-                    break;
-                case 5:
-                    String str5 = msg.getData().getString("text1");//接受msg传递过来的参数
-                    showData5.setText(str5);
+//                case 3:
+//                    String arcinfo = msg.getData().getString("arcinfo");//接受msg传递过来的参数
+//                    tv_arc.setText(arcinfo);
+//                    break;
             }
         }
     };
@@ -100,6 +95,15 @@ public class PullUpActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.pullup);
 
+        tv_count=findViewById(R.id.tv_count);
+        tv_hintinfo=findViewById(R.id.tv_hintinfo);
+//        tv_arc=findViewById(R.id.tv_arc);
+        no_camera_access_view=findViewById(R.id.no_camera_access_view);
+
+        if(PermissionHelper.cameraPermissionsGranted(this)){
+            no_camera_access_view.setVisibility(View.GONE);
+        }
+
         //获取APP相关数据
         try {
             applicationInfo = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
@@ -107,48 +111,19 @@ public class PullUpActivity extends AppCompatActivity {
             Log.e(TAG, "Cannot find application info: " + e);
         }
 
-        //创建SurfaceView对象并设置监听函数并放到盒子中，如果用findById方式初始化SurfaceView会出现黑屏问题
+//        previewDisplayView=findViewById(R.id.sv_test);
         previewDisplayView = new SurfaceView(this);
         previewDisplayView.setVisibility(View.GONE);
         ViewGroup viewGroup = findViewById(R.id.preview_display_layout);
         viewGroup.addView(previewDisplayView);
+//        previewDisplayView.setZOrderOnTop(true);
+//        previewDisplayView.setZOrderMediaOverlay(true);
 
-        showData=new TextView(this);
-        showData.setTextColor(Color.YELLOW);
-        viewGroup.addView(showData);
-
-        showData2=new TextView(this);
-        showData2.setTextColor(Color.RED);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.topMargin=50;
-        showData2.setLayoutParams(lp);
-        viewGroup.addView(showData2);
-
-        showData3=new TextView(this);
-        showData3.setTextColor(Color.GREEN);
-        LinearLayout.LayoutParams lp3 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp3.topMargin=100;
-        showData3.setLayoutParams(lp3);
-        viewGroup.addView(showData3);
-
-        showData4=new TextView(this);
-        showData4.setTextColor(Color.GREEN);
-        LinearLayout.LayoutParams lp4 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp4.topMargin=250;
-        showData4.setLayoutParams(lp4);
-        viewGroup.addView(showData4);
-
-        showData5=new TextView(this);
-        showData5.setTextColor(Color.GREEN);
-        LinearLayout.LayoutParams lp5 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp5.topMargin=300;
-        showData5.setLayoutParams(lp5);
-        viewGroup.addView(showData5);
-
-
-//        previewDisplayView.setZOrderOnTop(true);//使用此方法后，SurfaceView会挡住其他布局，但挡不住dialog之类的
 //        previewDisplayView.getHolder().setFormat(PixelFormat.TRANSPARENT);
-        previewDisplayView.getHolder().addCallback(new SurfaceHolder.Callback() {//在SurfaceView中可以通过getHolder()方法获取到SurfaceHolder实例,SurfaceHolder实例可以用来操控Surface。创建SurfaceView的时候需要实现SurfaceHolder.Callback接口，它可以用来监听SurfaceView的状态，生命周期包括创建、改变、销毁
+
+        //在SurfaceView中可以通过getHolder()方法获取到SurfaceHolder实例,SurfaceHolder实例可以用来操控Surface。创建SurfaceView的时候需要实现SurfaceHolder.Callback接口，它可以用来监听SurfaceView的状态，生命周期包括创建、改变、销毁
+        previewDisplayView.getHolder().addCallback(new SurfaceHolder.Callback() {
+
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 processor.getVideoSurfaceOutput().setSurface(holder.getSurface());
@@ -181,18 +156,25 @@ public class PullUpActivity extends AppCompatActivity {
         processor = new FrameProcessor(this, eglManager.getNativeContext(), BINARY_GRAPH_NAME, INPUT_VIDEO_STREAM_NAME, OUTPUT_VIDEO_STREAM_NAME);
         processor.getVideoSurfaceOutput().setFlipY(FLIP_FRAMES_VERTICALLY);//把帧垂直翻转,垂直翻转的概念：从上向下或从下向上180度翻转；
         PermissionHelper.checkAndRequestCameraPermissions(this);//判断相机是否有访问权限，如果没有则请求权限
-//        Paint textPaint = new Paint();
-//        textPaint.setColor(Color.WHITE);
-//        textPaint.setTextSize(60.0f);
-//        textPaint.setShadowLayer(5.0f, 0f, 0f, Color.BLACK);
+
+        converter = new ExternalTextureConverter(eglManager.getContext(), 2);
+        converter.setFlipY(FLIP_FRAMES_VERTICALLY);
+        converter.setConsumer(processor);
+        if (PermissionHelper.cameraPermissionsGranted(this)) {
+            cameraHelper = new CameraXPreviewHelper();
+            cameraHelper.setOnCameraStartedListener(surfaceTexture -> {
+                previewFrameTexture = surfaceTexture;
+                previewDisplayView.setVisibility(View.VISIBLE);//使显示视图可见，以开始显示预览。 这触发了SurfaceHolder。 回调函数添加到previewDisplayView的holder中。
+            });
+            CameraHelper.CameraFacing cameraFacing = CAMERA_FACING;
+            cameraHelper.startCamera(this, cameraFacing, /*unusedSurfaceTexture=*/ null, null);
+        }
+
         processor.addPacketCallback(OUTPUT_LANDMARKS_STREAM_NAME, (packet) -> {
 
-            Bundle bundle5=new Bundle();
-            bundle5.putString("text1",String.valueOf(frameNum));  //往Bundle中存放数据
-            Message message5=new Message();
-            message5.what=5;
-            message5.setData(bundle5);
-            handler.sendMessage(message5);
+            long startTime=System.currentTimeMillis();
+
+            Log.d(TAG, "执行轮次: "+frameNum);
 
             byte[] landmarksRaw = PacketGetter.getProtoBytes(packet);
             int width=previewDisplayView.getWidth();
@@ -208,6 +190,8 @@ public class PullUpActivity extends AppCompatActivity {
 
                 //鼻子
                 LandmarkProto.NormalizedLandmark nose=landmarks.getLandmarkList().get(PoseLandmark.NOSE);
+                //嘴
+                LandmarkProto.NormalizedLandmark mouth=landmarks.getLandmarkList().get(PoseLandmark.LEFT_MOUTH);
                 //左指
                 LandmarkProto.NormalizedLandmark left_index=landmarks.getLandmarkList().get(PoseLandmark.LEFT_INDEX);
                 //左手
@@ -230,52 +214,44 @@ public class PullUpActivity extends AppCompatActivity {
                 //右胯
                 LandmarkProto.NormalizedLandmark right_hip=landmarks.getLandmarkList().get(PoseLandmark.RIGHT_HIP);
 
-
-//                    System.out.println("nose:"+nose.getY());
-//                    System.out.println(left_shoulder.getY()+"|"+left_hip.getY());
-//                    System.out.println(right_shoulder.getY()+"|"+right_hip.getY());
-
                 //判断节点是否正确识别到人
+                Bundle hintInfobundle=new Bundle();
+                Message hintInfoMessage=new Message();
+                hintInfoMessage.what=2;
                 if(nose.getY()>left_shoulder.getY()||nose.getY()>right_shoulder.getY()||left_shoulder.getY()>left_hip.getY()||right_shoulder.getY()>right_hip.getY()){
-                    Bundle bundle=new Bundle();
-                    bundle.putString("text1","未识别到正确的人体");  //往Bundle中存放数据
-                    Message message=new Message();
-                    message.what=2;
-                    message.setData(bundle);
-                    handler.sendMessage(message);
+                    hintInfobundle.putString("hintInfo","未识别到正确的人体");  //往Bundle中存放数据
+                    hintInfoMessage.setData(hintInfobundle);
+                    handler.sendMessage(hintInfoMessage);
                     return;
                 }else{
-                    Bundle bundle=new Bundle();
-                    bundle.putString("text1","");  //往Bundle中存放数据
-                    Message message=new Message();
-                    message.what=2;
-                    message.setData(bundle);
-                    handler.sendMessage(message);
+                    hintInfobundle.putString("hintInfo","");  //往Bundle中存放数据
+                    hintInfoMessage.setData(hintInfobundle);
+                    handler.sendMessage(hintInfoMessage);
                 }
 
                 //判断动作是否已经结束
                 if(isFinishedFlag==1){
+                    Log.v(TAG, "引体向上动作已经结束");
+                    Bundle actionEndBundle = new Bundle();
+                    actionEndBundle.putString("hintInfo","动作结束,不再计数");  //往Bundle中存放数据
+                    Message actionEndMessage=new Message();
+                    actionEndMessage.what=2;
+                    actionEndMessage.setData(actionEndBundle);//mes利用Bundle传递数据
+                    handler.sendMessage(actionEndMessage);
                     return;
                 }
 
                 //判断起始位置：（1）手、肘、肩角度在[150,180]之间；（2）手部结点在[-10,10]范围内变换
-
-
                 if(findFirstCorrectFrameFlag==0){
                     //判断初始状态帧（即跃上杠之后的第一帧）
                     double angle_left_shoulder=getAngle(left_elbow,left_shoulder,left_hip);
                     double angle_right_shoulder=getAngle(right_elbow,right_shoulder,right_hip);
+                    System.out.println("肩部角度："+angle_left_shoulder+","+angle_right_shoulder+","+frameIndex);
                     //判断是否举起了双臂
                     if(angle_left_shoulder>=130&&angle_left_shoulder<=180&&angle_right_shoulder>=130&&angle_right_shoulder<=180){
                         //获得杠高
-                        hightOfPole=(left_index.getY()*height+right_index.getY()*height)/2;
-                        Bundle bundle=new Bundle();
-                        bundle.putString("text1",String.valueOf(frameIndex));  //往Bundle中存放数据
-                        bundle.putString("text2",String.valueOf(hightOfPole));
-                        Message message=new Message();
-                        message.what=1;
-                        message.setData(bundle);
-                        handler.sendMessage(message);
+                        heightOfPole=(left_index.getY()*height+right_index.getY()*height)/2;
+                        System.out.println("杠高:"+heightOfPole+",轮次："+frameIndex);
                         findFirstCorrectFrameFlag=1;
                     }
                 }else{
@@ -283,39 +259,50 @@ public class PullUpActivity extends AppCompatActivity {
                     double angle_right_elbow=getAngle(right_wrist,right_elbow,right_shoulder);
                     double angle_shoulder_left=getAngle(left_elbow,left_shoulder,left_hip);
                     double angle_shoulder_right=getAngle(right_elbow,right_shoulder,right_hip);
-                    if((angle_left_elbow<=65||Math.abs(angle_left_elbow-65)<20)||(angle_right_elbow<=65||Math.abs(angle_right_elbow-65)<20)){//&&angle_shoulder_left<=65&&angle_shoulder_right<=65
+                    System.out.println("肘部角度："+angle_left_elbow+","+angle_right_elbow+","+frameIndex+","+num);
+
+//                    Bundle arcBundle = new Bundle();
+//                    arcBundle.putString("arcinfo",angle_left_elbow+","+angle_right_elbow);  //往Bundle中存放数据
+//                    Message arcMessage=new Message();
+//                    arcMessage.what=3;
+//                    arcMessage.setData(arcBundle);//mes利用Bundle传递数据
+//                    handler.sendMessage(arcMessage);
+
+                    float l=heightOfPole-mouth.getY()*height;
+                    Log.d(TAG, "杠高与鼻子的距离: "+l);
+                    Log.d(TAG, "鼻子高度: "+nose.getY()*height+",轮次:"+frameIndex);
+                    if((Math.abs(angle_left_elbow-65)<20&&angle_shoulder_left<90)||(Math.abs(angle_right_elbow-65)<20&&angle_shoulder_right<90)){//||l>20&&angle_shoulder_left<=65&&angle_shoulder_right<=65
                         if(isCorrectElbowAngleFlag==0){
                             num=num+1;
+                            System.out.println("成功次数+1");
                             isCorrectElbowAngleFlag=1;
                         }
                     }else {
                         isCorrectElbowAngleFlag = 0;
                     }
-                    Bundle bundle = new Bundle();
-                    bundle.putString("text1",String.valueOf(num));  //往Bundle中存放数据
-                    bundle.putString("text2",angle_left_elbow+","+angle_right_elbow);
-                    bundle.putString("text3",angle_shoulder_left+","+angle_shoulder_right);
-                    Message message=new Message();
-                    message.what=3;
-                    message.setData(bundle);//mes利用Bundle传递数据
-                    handler.sendMessage(message);
-                    //左指与杠高、右指与杠高距离大于50像素时认为下杠，动作结束
-                    float l1=Math.abs(left_index.getY()*height-hightOfPole);
-                    float l2=Math.abs(right_index.getY()*height-hightOfPole);
-                    if(l1>100&&l2>100){
-                        System.out.println("count:"+num);
-                        Bundle bundle22 = new Bundle();
-                        bundle22.putString("text1","动作结束,不再计数");  //往Bundle中存放数据
-                        bundle22.putString("text2",l1+","+l2);  //往Bundle中存放数据
-                        Message message22=new Message();
-                        message22.what=4;
-                        message22.setData(bundle22);//mes利用Bundle传递数据
-                        handler.sendMessage(message22);
+                    Bundle actionCountBundle = new Bundle();
+                    actionCountBundle.putString("actionCount",String.valueOf(num));  //往Bundle中存放数据
+                    Message actionCountMessage=new Message();
+                    actionCountMessage.what=1;
+                    actionCountMessage.setData(actionCountBundle);//mes利用Bundle传递数据
+                    handler.sendMessage(actionCountMessage);
+                    //左指与杠高、右指与杠高距离大于200像素时认为下杠，动作结束
+                    float l1=Math.abs(left_index.getY()*height-heightOfPole);
+                    float l2=Math.abs(right_index.getY()*height-heightOfPole);
+                    System.out.println("差距:"+l1+","+l2+","+frameIndex);
+                    if(l1>200&&l2>200){//&&angle_shoulder_left<30&&angle_shoulder_right<30
+                        Bundle actionEndBundle = new Bundle();
+                        actionEndBundle.putString("hintInfo","动作结束,不再计数");  //往Bundle中存放数据
+                        Message actionEndMessage=new Message();
+                        actionEndMessage.what=2;
+                        actionEndMessage.setData(actionEndBundle);//mes利用Bundle传递数据
+                        handler.sendMessage(actionEndMessage);
                         isFinishedFlag=1;
                     }
                 }
                 frameIndex++;
                 frameNum++;
+                System.out.println("耗时:"+(System.currentTimeMillis()-startTime)+"ms");
             } catch (InvalidProtocolBufferException e) {
                 Log.e(TAG, "Couldn't Exception received - " + e);
                 return;
@@ -326,25 +313,13 @@ public class PullUpActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        converter = new ExternalTextureConverter(eglManager.getContext(), 2);
-        converter.setFlipY(FLIP_FRAMES_VERTICALLY);
-        converter.setConsumer(processor);
-        if (PermissionHelper.cameraPermissionsGranted(this)) {
-            cameraHelper = new CameraXPreviewHelper();
-            cameraHelper.setOnCameraStartedListener(surfaceTexture -> {
-                previewFrameTexture = surfaceTexture;
-                previewDisplayView.setVisibility(View.VISIBLE);//使显示视图可见，以开始显示预览。 这触发了SurfaceHolder。 回调函数添加到previewDisplayView的holder中。
-            });
-            CameraHelper.CameraFacing cameraFacing = CAMERA_FACING;
-            cameraHelper.startCamera(this, cameraFacing, /*unusedSurfaceTexture=*/ null, null);
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         converter.close();
-        previewDisplayView.setVisibility(View.GONE);//隐藏预览显示，直到我们再次打开相机。
+//        previewDisplayView.setVisibility(View.GONE);//隐藏预览显示，直到我们再次打开相机。
     }
 
     @Override
@@ -366,11 +341,5 @@ public class PullUpActivity extends AppCompatActivity {
         degree = Math.toDegrees(temp);
         return degree;
     }
-
-    //在屏幕上写文字描述
-    protected void drawText(Canvas canvas, String text, float x, float y, Paint paint) {
-        canvas.drawText(text, x, y, paint);
-    }
-
 
 }
