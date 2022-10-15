@@ -1,5 +1,5 @@
-package com.example.mediapipeposetracking.obliquePullUpsProject;
-import com.example.mediapipeposetracking.MainActivity;
+package com.example.mediapipeposetracking.doubleBarflexionProject;
+
 import com.google.mediapipe.formats.proto.LandmarkProto;
 
 
@@ -33,48 +33,34 @@ public class BodyModule {
         Point LAnkle = new Point(LAnklePoint.getX()*PoseTest.width,LAnklePoint.getY()*PoseTest.hight,LAnklePoint.getVisibility());
         Point RAnkle = new Point(RAnklePoint.getX()*PoseTest.width,RAnklePoint.getY()*PoseTest.hight,RAnklePoint.getVisibility());
 
-        //鼻子节点
-        LandmarkProto.NormalizedLandmark NosePoint=landmarkList.getLandmarkList().get(0);
-        Point Nose=new Point(NosePoint.getX()*PoseTest.width,NosePoint.getY()*PoseTest.hight,NosePoint.getVisibility());
 
 
 
-        Point[] body_points={RShoulder,LShoulder,RHip,LHip,RKeen,LKeen,RAnkle,LAnkle,Nose};
+        Point[] body_points={RShoulder,LShoulder,RHip,LHip,RKeen,LKeen,RAnkle,LAnkle};
         return body_points;
     }
 
-    //检测腿部是否甚至
+    //检测腿部是否挺直
     public static boolean isLegStright(Point Hip,Point Keen,Point Ankle,int threshold_leg_angle){
         //假设所需关键点已经全部检测到
+//        System.out.println("threshold_leg_angle:"+threshold_leg_angle);
         float angle = utils.calAngle(Hip,Keen,Keen,Ankle);
-        System.out.println("腿夹角: "+angle);
 
-        if(angle<threshold_leg_angle){
+        if(angle>threshold_leg_angle){
             return true;
         }
         return false;
     }
 
     //检测身体是否挺直
-    public static boolean isBodyStright(Point Shoulder,Point Hip,Point Keen,int threshold_body_leg_angle){
+    public static boolean isBodyStright(Point Shoulder,Point Hip,Point Knee,int threshold_body_leg_angle){
         //假设所需关键点已经全部检测到
-        float angle = utils.calAngle(Shoulder,Hip,Hip,Keen);
-        System.out.println("躯干-腿部夹角: "+angle);
-//        PoseTest.keyMessage=String.valueOf(angle);
-        if(angle<threshold_body_leg_angle){
+        float angle = utils.calAngle(Shoulder,Hip,Hip,Knee);
+        if(angle>threshold_body_leg_angle){
             return true;
         }
         return  false;
     }
-
-    //计算躯干地面角度
-    public static float body_floor_angle(Point Shoulder,Point Ankle){
-        Point floor=new Point(0,Ankle.Y,0);
-        float angle=utils.calAngle(Shoulder,Ankle,Ankle,floor);
-        return angle;
-    }
-
-
 
 }
 
