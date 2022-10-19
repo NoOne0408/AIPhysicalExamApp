@@ -1,6 +1,5 @@
 package com.example.mediapipeposetracking.obliquePullUpsProject;
 
-import com.example.mediapipeposetracking.MainActivity;
 
 public class PoseTest {
     private static float threshold_small;//胳膊小阈值

@@ -104,12 +104,12 @@ public class ObliquePullUps {
 
         //每隔一秒使用 handler发送一下消息,也就是每隔一秒执行一次,一直重复执行
 
-        MainActivity.timer.schedule(new TimerTask() {
+        ObliquePullUpsActivity.timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 //使用handler发送消息
                 Message message = new Message();
-                MainActivity.mHandler.sendMessage(message);
+                ObliquePullUpsActivity.mHandler.sendMessage(message);
             }
         },1000,1000);//每 1s执行一次
     }

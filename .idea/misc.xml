@@ -4,6 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.21240942028985507" />
+        <entry key="app/src/main/res/layout/double_barflexion.xml" value="0.12552083333333333" />
+        <entry key="app/src/main/res/layout/oblique_pullups.xml" value="0.19166666666666668" />
         <entry key="app/src/main/res/layout/pullup.xml" value="0.16666666666666666" />
         <entry key="app/src/main/res/layout/start_page.xml" value="0.1" />
       </map>

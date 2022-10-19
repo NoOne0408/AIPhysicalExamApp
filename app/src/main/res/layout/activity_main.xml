@@ -26,21 +26,21 @@
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp" />
 
-        <Button
-            android:id="@+id/button_3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="仰卧起坐"
-            android:layout_below="@+id/button_2"
-            tools:layout_editor_absoluteX="146dp"
-            tools:layout_editor_absoluteY="132dp" />
+<!--        <Button-->
+<!--            android:id="@+id/button_3"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="仰卧起坐"-->
+<!--            android:layout_below="@+id/button_2"-->
+<!--            tools:layout_editor_absoluteX="146dp"-->
+<!--            tools:layout_editor_absoluteY="132dp" />-->
 
         <Button
             android:id="@+id/button_4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="双杠臂屈伸"
-            android:layout_below="@+id/button_3"
+            android:layout_below="@+id/button_2"
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp" />
     </RelativeLayout>
@@ -70,6 +70,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="invisible">
+
+        <Button
+            android:id="@+id/button_5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="双杠臂屈伸"
+            android:layout_toRightOf="@+id/count_text"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp" />
 
         <TextView
             android:id="@+id/count_text"

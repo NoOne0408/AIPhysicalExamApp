@@ -18,12 +18,14 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 
+import com.example.mediapipeposetracking.MainActivity;
 import com.example.mediapipeposetracking.R;
 import com.google.mediapipe.components.CameraHelper;
 import com.google.mediapipe.components.CameraXPreviewHelper;
@@ -51,7 +53,8 @@ public class PullUpActivity extends AppCompatActivity {
     private SurfaceTexture previewFrameTexture;//SurfaceTexture在这里可以访问相机预览帧。SurfaceTexture可以用作非直接输出的内容流，这样就提供二次处理的机会
     private SurfaceView previewDisplayView;//SurfaceView显示由MediaPipe图形处理的摄像机预览帧 ,用于动态显示视频的组件
     private EglManager eglManager;//创建和管理一个EGLContext，EglManager主要作用是管理OpenGL上下文，比如创建EglSurface、指定当前操作的Surface、swapBuffers等，主要负责场景及节点的管理工作：
-    private FrameProcessor processor;//帧处理器，将相机预览帧发送到MediaPipe图中进行处理，并在Surface显示处理后的图像
+//    private FrameProcessor processor;//帧处理器，将相机预览帧发送到MediaPipe图中进行处理，并在Surface显示处理后的图像
+    private FrameProcessor processor;
     private ExternalTextureConverter converter;//将Android摄像头的GL_TEXTURE_EXTERNAL_OES纹理转换为常规纹理，供FrameProcessor和底层MediaPipe图使用
     private ApplicationInfo applicationInfo;//ApplicationInfo用于检索清单中定义的元数据
     private CameraXPreviewHelper cameraHelper;//通过CameraX Jetpack支持库处理相机访问
@@ -89,16 +92,27 @@ public class PullUpActivity extends AppCompatActivity {
         }
     };
 
+    Button button_close;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.pullup);
 
-        tv_count=findViewById(R.id.tv_count);
-        tv_hintinfo=findViewById(R.id.tv_hintinfo);
+        tv_count=findViewById(R.id.count_result_p3);
+        tv_hintinfo=findViewById(R.id.action_advice_p3);
 //        tv_arc=findViewById(R.id.tv_arc);
         no_camera_access_view=findViewById(R.id.no_camera_access_view);
+        button_close=findViewById(R.id.button_finish_p3);
+
+        button_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 在其中写入响应方法
+               finish();
+            }
+        });
 
         if(PermissionHelper.cameraPermissionsGranted(this)){
             no_camera_access_view.setVisibility(View.GONE);
