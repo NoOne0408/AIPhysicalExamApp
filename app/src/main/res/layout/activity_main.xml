@@ -72,11 +72,11 @@
         android:visibility="invisible">
 
         <Button
-            android:id="@+id/button_5"
+            android:id="@+id/button_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="双杠臂屈伸"
-            android:layout_toRightOf="@+id/count_text"
+            android:text="结束"
+            android:layout_below="@+id/action_text"
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp" />
 

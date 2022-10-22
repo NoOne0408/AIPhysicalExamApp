@@ -26,7 +26,5 @@
         </activity>
 
         <activity android:name=".pullup.PullUpActivity"/>
-        <activity android:name=".obliquePullUpsProject.ObliquePullUpsActivity"/>
-        <activity android:name=".doubleBarflexionProject.DoubleBarflexionActivity"/>
     </application>
 </manifest>

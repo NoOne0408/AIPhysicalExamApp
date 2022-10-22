@@ -142,7 +142,7 @@ public class PoseTest {
 //        System.out.println("threshold_body_floor_angle_sub："+threshold_body_floor_angle_sub);
 
         boolean bodyFlag= angle_body_floor_left <=upperBoundLeftBody  || angle_body_floor_right <= upperBoundRightBody;
-        if (!bodyFlag)PoseTest.keyMessage="身体与地面夹角过大";
+//        if (!bodyFlag)PoseTest.keyMessage="身体与地面夹角过大";
 
 //        System.out.println("isArmStright_left: "+isArmStright_left);
 //        System.out.println("isArmStright_right: "+isArmStright_right);

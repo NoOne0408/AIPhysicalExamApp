@@ -1,6 +1,8 @@
 package com.example.mediapipeposetracking.doubleBarflexionProject;
 import android.os.Message;
 
+import com.example.mediapipeposetracking.MainActivity;
+
 import java.util.TimerTask;
 
 public class doubleBarflexion {
@@ -47,6 +49,38 @@ public class doubleBarflexion {
     Point RShoulder,LShoulder,RHip,LHip,RKeen,LKeen,RAnkle,LAnkle,Nose;
     Point RElbow,LElbow,RWrist,LWrist;
     Point RHeel,LHeel,RIndex,LIndex;
+
+    public void recover(){
+        //起始、计数标记位
+        start_flag=false;
+        count_flag=false;
+
+        //每个条件满足情况
+        condition_satisfy=false;
+
+        //起始计数时间戳
+        max_time = 999999999;
+        start_time = max_time;
+        count_time = max_time;
+
+
+        //违规判断标记位,塌腰挺腹，曲腿，移动脚，超过十秒
+        bow_flag=false;
+        bend_leg_flag=false;
+        move_feet_flag=false;
+
+
+        bow_count=0;
+        bend_leg_count=0;
+        move_feet_count =0;
+
+        n=0;
+        count=0;
+        //用于判断是不是达到准备动作要求
+        isReady=false;
+
+
+    }
 
 
 
@@ -100,14 +134,24 @@ public class doubleBarflexion {
 
         //每隔一秒使用 handler发送一下消息,也就是每隔一秒执行一次,一直重复执行
 
-        DoubleBarflexionActivity.timer.schedule(new TimerTask() {
+//        DoubleBarflexionActivity.timer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                //使用handler发送消息
+//                Message message = new Message();
+//                DoubleBarflexionActivity.mHandler.sendMessage(message);
+//            }
+//        },1000,1000);//每 1s执行一次
+
+        MainActivity.timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 //使用handler发送消息
                 Message message = new Message();
-                DoubleBarflexionActivity.mHandler.sendMessage(message);
+                MainActivity.mHandler.sendMessage(message);
             }
         },1000,1000);//每 1s执行一次
+
     }
 
 
