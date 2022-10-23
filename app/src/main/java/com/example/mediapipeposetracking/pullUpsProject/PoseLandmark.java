@@ -1,4 +1,4 @@
-package com.example.mediapipeposetracking.pullup;
+package com.example.mediapipeposetracking.pullUpsProject;
 
 import android.graphics.PointF;
 

@@ -1,7 +1,6 @@
 package com.example.mediapipeposetracking;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -28,7 +27,7 @@ import com.example.mediapipeposetracking.obliquePullUpsProject.ObliquePullUps;
 //import com.example.mediapipeposetracking.obliquePullUpsProject.ObliquePullUpsActivity;
 import com.example.mediapipeposetracking.obliquePullUpsProject.Point;
 import com.example.mediapipeposetracking.obliquePullUpsProject.PoseTest;
-import com.example.mediapipeposetracking.pullup.PullUpActivity;
+import com.example.mediapipeposetracking.pullUpsProject.PullUps;
 import com.google.mediapipe.components.CameraHelper;
 import com.google.mediapipe.components.CameraXPreviewHelper;
 import com.google.mediapipe.components.ExternalTextureConverter;
@@ -63,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
     // This is needed because OpenGL represents images assuming the image origin is at the bottom-left
     // corner, whereas MediaPipe in general assumes the image origin is at top-left.
     private static final boolean FLIP_FRAMES_VERTICALLY = true;
-    private Context context=this;
 
 
 
@@ -93,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     ObliquePullUps obliquePullUps = new ObliquePullUps();
     doubleBarflexion _doubleBarflexion = new doubleBarflexion();
+    PullUps pullUps=new PullUps();
 
     Point RShoulder, LShoulder, RHip, LHip, RKeen, LKeen, RAnkle, LAnkle, Nose;
     Point RElbow, LElbow, RWrist, LWrist;
@@ -129,6 +128,10 @@ public class MainActivity extends AppCompatActivity {
                 String out = doubleBarflexion.count + "";
                 MainActivity.tvCount.setText(out);
                 MainActivity.tvAction.setText(com.example.mediapipeposetracking.doubleBarflexionProject.PoseTest.keyMessage);
+            }
+            if(project_name.equals("pullUps")){
+                MainActivity.tvCount.setText(PullUps.count+"");
+                MainActivity.tvAction.setText(PullUps.keyMessage);
             }
             super.handleMessage(msg);
 
@@ -236,6 +239,9 @@ public class MainActivity extends AppCompatActivity {
 
                         } else if (project.equals("pullUps")) {
                             //引体向上动作检测开始
+                            int width=previewDisplayView.getWidth();
+                            int height=previewDisplayView.getHeight();
+                            pullUps.startDetection(landmarks,width,height);
                         } else if (project.equals("SitUps")) {
                             //仰卧起坐动作检测开始
                         } else if (project.equals("doubleBarBuckling")) {
@@ -301,12 +307,9 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("引体向上项目检测");
                 button_pullups.setText("引体向上检测");
                 project_name = "pullUps";
-//                onResumeTest();
-//                checkCamera();
-//                poseDetection("pullUps");
-                Intent intent=new Intent(context, PullUpActivity.class);
-                startActivity(intent);
-
+                onResumeTest();
+                checkCamera();
+                poseDetection("pullUps");
             }
         });
 
@@ -349,6 +352,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (project_name.equals("doubleBarBuckling")) {
                     _doubleBarflexion.recover();
+                }
+                if (project_name.equals("pullUps")) {
+                    pullUps.recover();
                 }
 
             }
