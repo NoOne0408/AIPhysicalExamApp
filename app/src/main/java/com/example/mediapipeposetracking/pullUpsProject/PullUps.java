@@ -18,11 +18,11 @@ public class PullUps {
 
 
     private static final int THRESHOLD_ELBOW_ANGLE=90;//肘部弯曲角度阈值(单位：度)
-    private static final int OFFSET_ELBOW_ANGLE=20;//肘部弯曲角度变化范围(单位：度)
+//    private static final int OFFSET_ELBOW_ANGLE=20;//肘部弯曲角度变化范围(单位：度)
     private static final int MIN_VALUE_SHOULDER_ANGLE=130;//肩部角度最小值(单位：度)
     private static final int MAX_VALUE_SHOULDER_ANGLE=180;//肩部角度最大值(单位：度)
     private static final int THRESHOLD_SHOULDER_ANGLE=90;//肩部角度阈值(单位：度)
-    private static final int DIS_BETWEEN_FIGER_WITH_POLE=200;//手指到杠的距离（单位：px）
+//    private static final int DIS_BETWEEN_FIGER_WITH_POLE=200;//手指到杠的距离（单位：px）
 
     private int frame_wave=0;//至少需要过20帧才可以计数加一
 
@@ -103,7 +103,7 @@ public class PullUps {
                 float l=heightOfPole-mouth.getY()*height;
                 Log.d(TAG, "杠高与鼻子的距离: "+l);
                 Log.d(TAG, "鼻子高度: "+nose.getY()*height+",轮次:"+frameIndex);
-                if( (angle_left_elbow<THRESHOLD_ELBOW_ANGLE || angle_right_elbow < THRESHOLD_ELBOW_ANGLE) && l>0 ){//||l>20&&angle_shoulder_left<=65&&angle_shoulder_right<=65
+                if( (angle_left_elbow<THRESHOLD_ELBOW_ANGLE || angle_right_elbow < THRESHOLD_ELBOW_ANGLE || angle_shoulder_left < THRESHOLD_SHOULDER_ANGLE || angle_shoulder_right < THRESHOLD_SHOULDER_ANGLE) && l>0 ){//||l>20&&angle_shoulder_left<=65&&angle_shoulder_right<=65
                     if(isCorrectElbowAngleFlag==0){
                         System.out.println("过去的帧数："+frame_wave);
                         System.out.println("时间："+new Date(System.currentTimeMillis()));
