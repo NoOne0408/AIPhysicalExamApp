@@ -110,11 +110,15 @@ public class PullUps {
                         if(frame_wave>10){//若从上次计数+1到这次计数+1已经过了10帧以上，则加一
                             num=num+1;
                             frame_wave=0;
+                            PullUps.keyMessage="成功次数+1";
                             System.out.println("成功次数+1");
                         }
                         isCorrectElbowAngleFlag=1;
                     }
                 }else {
+                    if(l<0){
+                        PullUps.keyMessage="下巴未过杠";
+                    }
                     isCorrectElbowAngleFlag = 0;
                 }
                 PullUps.count=num;
