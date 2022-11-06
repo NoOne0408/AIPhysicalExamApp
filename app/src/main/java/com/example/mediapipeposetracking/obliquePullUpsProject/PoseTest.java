@@ -31,16 +31,7 @@ public class PoseTest {
         PoseTest.threshold_leg_angle = threshold_leg_angle;
         PoseTest.threshold_body_leg_angle = threshold_body_leg_angle;
     }
-
-//    public float[]  getVaules(){
-//        float[] vaules={ threshold_small,
-//                threshold_arm_angle_sub,
-//        threshold_angle_sub,
-//        threshold_nose_dis,
-//                threshold_leg_angle,
-//                threshold_body_leg_angle};
-//        return vaules;
-//    }
+    
 
     //用于更新胳膊夹角的值，采用前n次最小的角度
     public void updateArmAngle(Point LWrist,Point LElbow,Point LShoulder,
@@ -76,7 +67,6 @@ public class PoseTest {
         //当两条腿都不直时，提醒腿部弯曲
         if(!Lleg&&!Rleg){
             leg_bend=true;
-//            System.out.println("请伸直双腿");
         }
 
         //其次检测身体是否笔直
@@ -85,7 +75,6 @@ public class PoseTest {
         //当两边身体都不直时，提醒弯曲
         if(!Lbody&&!Rbody){
             body_bend=true;
-//            System.out.println("请挺直身体");
         }
 
         //检测脚部是否移动
@@ -107,7 +96,7 @@ public class PoseTest {
         //手臂直？
         float threshold_arm_angle_left = this.LArmAngle + PoseTest.threshold_arm_angle_sub;
         float threshold_arm_angle_right = this.RArmAngle + PoseTest.threshold_arm_angle_sub;
-        System.out.println("左右胳膊角度阈值："+threshold_arm_angle_left+"  "+threshold_arm_angle_right);
+//        System.out.println("左右胳膊角度阈值："+threshold_arm_angle_left+"  "+threshold_arm_angle_right);
         boolean isArmStright_left = ArmModule.isArmStright(LWrist, LElbow, LShoulder, threshold_arm_angle_left);
         boolean isArmStright_right = ArmModule.isArmStright(RWrist, RElbow, RShoulder, threshold_arm_angle_right);
         //tag1
@@ -123,7 +112,7 @@ public class PoseTest {
 
         float upperBoundRight=this.RArmBodyAngle+PoseTest.threshold_arm_body_angle_sub;
         float lowerBoundRight=this.RArmBodyAngle-PoseTest.threshold_arm_body_angle_sub;
-        System.out.println("左右胳膊-躯干角度阈值："+this.LArmBodyAngle+"  "+this.RArmBodyAngle);
+//        System.out.println("左右胳膊-躯干角度阈值："+this.LArmBodyAngle+"  "+this.RArmBodyAngle);
 //        System.out.println("threshold_arm_body_angle_sub："+threshold_arm_body_angle_sub);
 
 
@@ -136,23 +125,17 @@ public class PoseTest {
         float angle_body_floor_left = BodyModule.body_floor_angle(LShoulder, LAnkle);
         float angle_body_floor_right = BodyModule.body_floor_angle(RShoulder, RAnkle);
         //tag3
-        float upperBoundLeftBody=this.LBodyFloorAngle+PoseTest.threshold_body_floor_angle_sub;
-        float upperBoundRightBody=this.RBodyFloorAngle+PoseTest.threshold_body_floor_angle_sub;
-        System.out.println("左右地面-躯干角度阈值："+upperBoundLeftBody+"  "+upperBoundRightBody);
+        float upperBoundLeftBody=this.angle_body_floor_left +PoseTest.threshold_body_floor_angle_sub;
+        float upperBoundRightBody=this.angle_body_floor_right +PoseTest.threshold_body_floor_angle_sub;
+//        System.out.println("左右地面-躯干角度阈值："+upperBoundLeftBody+"  "+upperBoundRightBody);
 //        System.out.println("threshold_body_floor_angle_sub："+threshold_body_floor_angle_sub);
 
         boolean bodyFlag= angle_body_floor_left <=upperBoundLeftBody  || angle_body_floor_right <= upperBoundRightBody;
 //        if (!bodyFlag)PoseTest.keyMessage="身体与地面夹角过大";
 
-//        System.out.println("isArmStright_left: "+isArmStright_left);
-//        System.out.println("isArmStright_right: "+isArmStright_right);
-//        System.out.println("angle_body_arm_left: "+angle_body_arm_left);
-//        System.out.println("angle_body_arm_right: "+angle_body_arm_right);
-//        System.out.println("angle_body_floor_left: "+angle_body_floor_left);
-//        System.out.println("angle_body_floor_right: "+angle_body_floor_right);
 
         boolean commonCondition=isReady(LShoulder,LWrist,LElbow,LAnkle, RShoulder,RWrist,RElbow,RAnkle,30);
-        System.out.println("stright,angle,anglefloor,commonCondition ？  "+armStrightFlag+" "+armAngleFlag+" "+bodyFlag+" "+commonCondition);
+//        System.out.println("stright,angle,anglefloor,commonCondition ？  "+armStrightFlag+" "+armAngleFlag+" "+bodyFlag+" "+commonCondition);
 
         if(armStrightFlag && armAngleFlag && bodyFlag && commonCondition){
             return true;
@@ -166,12 +149,14 @@ public class PoseTest {
     private float angle_wrist_ankle_left, angle_wrist_ankle_right;
     private static float LArmAngle, RArmAngle;//前几次循环中胳膊夹角需要不断更新为最小值，以便确定最准确的阈值
     private float LArmBodyAngle,RArmBodyAngle;
-    private float LBodyFloorAngle,RBodyFloorAngle;
+    private float angle_body_floor_left, angle_body_floor_right;
 
     private Point LWristPoint, RWristPoint;
     private Point LAnklePoint, RAnklePoint;
     private Point LHeelPoint,RHeelPoint;
     private Point LIndexPoint,RIndexPoint;
+
+
 
 
     //初始状态获取
@@ -218,10 +203,10 @@ public class PoseTest {
         System.out.println("初始状态：右胳膊身体角度"+RArmBodyAngle);
 
         //获取初始身体与地面夹角
-        this.LBodyFloorAngle=BodyModule.body_floor_angle(LShoulder, LAnkle);
-        this.RBodyFloorAngle=BodyModule.body_floor_angle(RShoulder,RAnkle);
-        System.out.println("初始状态：左身体与地面角度"+LBodyFloorAngle);
-        System.out.println("初始状态：右身体与地面角度"+RBodyFloorAngle);
+        this.angle_body_floor_left =BodyModule.body_floor_angle(LShoulder, LAnkle);
+        this.angle_body_floor_right =BodyModule.body_floor_angle(RShoulder,RAnkle);
+        System.out.println("初始状态：左身体与地面角度"+ angle_body_floor_left);
+        System.out.println("初始状态：右身体与地面角度"+ angle_body_floor_right);
 
     }
 
@@ -242,8 +227,18 @@ public class PoseTest {
 
         float[] result={angle_arm_left,angle_arm_right,angle_body_arm_left,angle_body_arm_right,angle_body_floor_left,angle_body_floor_right};
         return result;
+    }
 
+    //判断是否需要提示下巴不过杠
+    public boolean isJawMessage(Point LShoulder,Point LAnkle, Point RShoulder,Point RAnkle){
+        //身体地面角度
+        float angle_body_floor_left = BodyModule.body_floor_angle(LShoulder, LAnkle);
+        float angle_body_floor_right = BodyModule.body_floor_angle(RShoulder, RAnkle);
 
+        float leftAngleThreshold=(this.angle_wrist_ankle_left+this.angle_body_floor_left)/2;
+        float rightAngleThreshold=(this.angle_wrist_ankle_right+this.angle_body_floor_right)/2;
+
+        return angle_body_floor_left>=leftAngleThreshold ||angle_body_floor_right>=rightAngleThreshold;
     }
 
     //判断是否达到准备判断基本条件/开始条件
@@ -259,13 +254,13 @@ public class PoseTest {
         float angle_body_arm_right = utils.calAngle(RWrist, RShoulder, RShoulder, RAnkle);
         boolean armAngleFlag=((angle_body_arm_left>75&&angle_body_arm_left<105)||
                 (angle_body_arm_right>75&&angle_body_arm_right<105));
-        System.out.println("ready arm_body:"+angle_body_arm_left+" "+angle_body_arm_right);
+//        System.out.println("ready arm_body:"+angle_body_arm_left+" "+angle_body_arm_right);
 
         //身体地面角度合格 tag3
         float angle_body_floor_left = BodyModule.body_floor_angle(LShoulder, LAnkle);
         float angle_body_floor_right = BodyModule.body_floor_angle(RShoulder, RAnkle);
         boolean bodyFlag= angle_body_floor_left <65 && angle_body_floor_right < 65;
-        System.out.println("ready body:"+angle_body_floor_left+" "+angle_body_floor_right);
+//        System.out.println("ready body:"+angle_body_floor_left+" "+angle_body_floor_right);
 
         return armStrightFlag && armAngleFlag && bodyFlag;
     }
@@ -276,6 +271,7 @@ public class PoseTest {
         //获取腕踝角度
         float angle_body_floor_left = BodyModule.body_floor_angle(LShoulder, LAnkle);
         float angle_body_floor_right = BodyModule.body_floor_angle(RShoulder, RAnkle);
+
         //判断腕踝脚是否满足要求
         boolean bodyFloorFlag=angle_body_floor_left>70 ||angle_body_floor_right>70;
 
@@ -286,8 +282,8 @@ public class PoseTest {
 
 
         //其次检测身体是否笔直
-        boolean Lbody=BodyModule.isBodyStright(LShoulder,LHip,LKeen, 25);
-        boolean Rbody=BodyModule.isBodyStright(RShoulder,RHip,RKeen, 25);
+        boolean Lbody=BodyModule.isBodyStright(LShoulder,LHip,LKeen, 15);
+        boolean Rbody=BodyModule.isBodyStright(RShoulder,RHip,RKeen, 15);
         //判断身体腿部夹角是否满足要求
         boolean bodyLegFlag=Lbody ||Rbody;
 
@@ -349,14 +345,14 @@ public class PoseTest {
         boolean condition_circumference_satisfy=this.satisfyCondition_circumference(LWrist,LElbow,LShoulder,RWrist,RElbow,RShoulder);
         boolean condition_dis_nose_satisfy=this.satisfyCondition_dis_nose(Nose);
 
-        //如果主条件不满足，但是辅助条件都满足，则提醒下巴需要过杠
-        boolean additionCondition=condition_circumference_satisfy||condition_dis_nose_satisfy;
-
-        if (additionCondition && (sub_angle_left<20 ||sub_angle_right<20)){
-            System.out.println("下巴需要过杠！");
-            PoseTest.keyMessage="下巴需要过杠！";
-            return true;
-        }
+//        //如果主条件不满足，但是辅助条件都满足，则提醒下巴需要过杠
+//        boolean additionCondition=condition_circumference_satisfy||condition_dis_nose_satisfy;
+//
+//        if (additionCondition && (sub_angle_left<20 ||sub_angle_right<20)){
+//            System.out.println("下巴需要过杠！");
+//            PoseTest.keyMessage="下巴需要过杠！";
+//            return true;
+//        }
         return false;
     }
 
@@ -375,8 +371,8 @@ public class PoseTest {
         float dis3_right = utils.cal_distance(RElbow, RShoulder);
         float average_right=dis1_right+dis2_right+dis3_right;
 
-        System.out.println("周长左："+average_left);
-        System.out.println("周长右："+average_right);
+//        System.out.println("周长左："+average_left);
+//        System.out.println("周长右："+average_right);
 
 
         if (average_left< this.circumference_left ||average_right< this.circumference_right){
@@ -390,8 +386,8 @@ public class PoseTest {
     public boolean satisfyCondition_dis_nose(Point Nose){
         float dis_LWrist_Nose = utils.cal_distance(LWristPoint, Nose);
         float dis_RWrist_Nose = utils.cal_distance(RWristPoint, Nose);
-        System.out.println("鼻子 left距离:"+dis_LWrist_Nose);
-        System.out.println("鼻子 right距离:"+dis_RWrist_Nose);
+//        System.out.println("鼻子 left距离:"+dis_LWrist_Nose);
+//        System.out.println("鼻子 right距离:"+dis_RWrist_Nose);
         if (dis_LWrist_Nose<PoseTest.threshold_nose_dis && dis_RWrist_Nose<PoseTest.threshold_nose_dis){
             return true;
         }

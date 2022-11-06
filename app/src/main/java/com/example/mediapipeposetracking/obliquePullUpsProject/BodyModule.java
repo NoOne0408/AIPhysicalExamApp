@@ -60,7 +60,6 @@ public class BodyModule {
         //假设所需关键点已经全部检测到
         float angle = utils.calAngle(Shoulder,Hip,Hip,Keen);
         System.out.println("躯干-腿部夹角: "+angle);
-//        PoseTest.keyMessage=String.valueOf(angle);
         if(angle<threshold_body_leg_angle){
             return true;
         }
