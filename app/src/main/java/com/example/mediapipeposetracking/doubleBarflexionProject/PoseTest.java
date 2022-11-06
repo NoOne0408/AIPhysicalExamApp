@@ -53,8 +53,8 @@ public class PoseTest {
         //首先检测腿是否伸直
         boolean Lleg=BodyModule.isLegStright(LHip,LKeen,LAnkle, 155);
         boolean Rleg=BodyModule.isLegStright(RHip,RKeen,RAnkle, 155);
-        //当两条腿都不直时，提醒腿部弯曲
-        if(!Lleg&&!Rleg){
+        //当一条腿不直时，提醒腿部弯曲
+        if(!Lleg||!Rleg){
             leg_bend=true;
 //            System.out.println("请伸直双腿");
         }
@@ -62,8 +62,8 @@ public class PoseTest {
         //其次检测身体是否笔直
         boolean Lbody=BodyModule.isBodyStright(LShoulder,LHip,LKeen, 155);
         boolean Rbody=BodyModule.isBodyStright(RShoulder,RHip,RKeen, 155);
-        //当两边身体都不直时，提醒弯曲
-        if(!Lbody&&!Rbody){
+        //当一边身体不直时，提醒弯曲
+        if(!Lbody||!Rbody){
             body_bend=true;
 //            System.out.println("请挺直身体");
         }
@@ -176,9 +176,17 @@ public class PoseTest {
     public boolean satisfyCondition(Point LWrist,Point LElbow,Point LShoulder, Point LAnkle, Point RWrist,Point RElbow,Point RShoulder, Point RAnkle,Point Nose){
         boolean isArmStright_left = ArmModule.isArmStright(LWrist, LElbow, LShoulder, 160);
         boolean isArmStright_right = ArmModule.isArmStright(RWrist, RElbow, RShoulder, 160);
+        //添加手臂与地面垂直判断
+        Point floor_left = new Point(LWrist.X,3000,0);
+        Point floor_right = new Point(RWrist.X,3000,0);
+        boolean isArmStright_floar_left = ArmModule.isArmStright(floor_left, LWrist, LElbow, 160);
+        boolean isArmStright_floar_right = ArmModule.isArmStright(floor_right, RWrist, RElbow, 160);
         boolean armStrightFlag=(isArmStright_left || isArmStright_right);
+        boolean armStright_floar_Flag=(isArmStright_floar_left || isArmStright_floar_right);
 
-        if(armStrightFlag){
+
+
+        if(armStrightFlag&&armStright_floar_Flag){
             return true;
         }
         return false;

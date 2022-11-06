@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: __local_aars__:E.\Android3_2\projects\AIPhysicalExamApp\app\libs\mediapipe_pose_tracking.aar:unspecified@jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/e5bdd4faf8cae7ce42f2ad38e947cbea/mediapipe_pose_tracking/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/e5bdd4faf8cae7ce42f2ad38e947cbea/mediapipe_pose_tracking/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
