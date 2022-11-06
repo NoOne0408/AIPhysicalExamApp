@@ -112,45 +112,49 @@ public class doubleBarflexion {
     }
 
     public void startDetection(){
-        //如果没准备好，那就不断尝试ready的姿态,如果准备好了，那就获取初始状态
-        if (!isReady){
-            isReady=poseTest.isReady(LShoulder,LWrist,LElbow,LAnkle,
-                    RShoulder,RWrist,RElbow,RAnkle);
-            if (isReady){
-                poseTest.initFrame(LWrist, LElbow, LShoulder, LAnkle, LHeel,LIndex,
-                        RWrist, RElbow, RShoulder, RAnkle,RHeel,RIndex);
-            }
-
-            PoseTest.keyMessage="请调整姿势！" ;
+        if((LShoulder.rate<0.6&&RShoulder.rate<0.6)||(LWrist.rate<0.6&&RWrist.rate<0.6)||(LElbow.rate<0.6&&RElbow.rate<0.6)||(LHeel.rate<0.6&&RHeel.rate<0.6)){
+            PoseTest.keyMessage="人体拍摄不全" ;
+            MainActivity.timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    //使用handler发送消息
+                    Message message = new Message();
+                    MainActivity.mHandler.sendMessage(message);
+                }
+            },1000,1000);//每 1s执行一次
         }
-
-
         else{
+            //如果没准备好，那就不断尝试ready的姿态,如果准备好了，那就获取初始状态
+
+            if (!isReady){
+                isReady=poseTest.isReady(LShoulder,LWrist,LElbow,LAnkle,
+                        RShoulder,RWrist,RElbow,RAnkle);
+                if (isReady){
+                    poseTest.initFrame(LWrist, LElbow, LShoulder, LAnkle, LHeel,LIndex,
+                            RWrist, RElbow, RShoulder, RAnkle,RHeel,RIndex);
+                }
+
+                PoseTest.keyMessage="请调整姿势！" ;
+            }
+
+
+            else{
 //            PoseTest.keyMessage="已做好准备！" ;
-            poseJudge();
-            n++;
+                poseJudge();
+                n++;
+            }
+
+
+            MainActivity.timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    //使用handler发送消息
+                    Message message = new Message();
+                    MainActivity.mHandler.sendMessage(message);
+                }
+            },1000,1000);//每 1s执行一次
         }
 
-
-        //每隔一秒使用 handler发送一下消息,也就是每隔一秒执行一次,一直重复执行
-
-//        DoubleBarflexionActivity.timer.schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                //使用handler发送消息
-//                Message message = new Message();
-//                DoubleBarflexionActivity.mHandler.sendMessage(message);
-//            }
-//        },1000,1000);//每 1s执行一次
-
-        MainActivity.timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                //使用handler发送消息
-                Message message = new Message();
-                MainActivity.mHandler.sendMessage(message);
-            }
-        },1000,1000);//每 1s执行一次
 
     }
 
@@ -206,7 +210,18 @@ public class doubleBarflexion {
 //      boolean now_correct=true;
 
         if(now_correct==false){
-            PoseTest.keyMessage="动作不规范,本次不计数";
+            //腿部和身体都弯曲
+            if(bend_leg_flag && bow_flag){
+                PoseTest.keyMessage="屈髋且屈膝,本次不计数";
+            }
+            //腿部弯曲
+            else if(bend_leg_flag){
+                PoseTest.keyMessage="屈膝或蹬腿,本次不计数";
+            }
+            //腿部弯曲
+            else if(bow_flag){
+                PoseTest.keyMessage="屈髋,本次不计数";
+            }
             start_flag=false;
             return;
         }

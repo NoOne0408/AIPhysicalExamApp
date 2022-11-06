@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MediaPipeMultiHandsTrackingApp.iml" filepath="$PROJECT_DIR$/.idea/modules/MediaPipeMultiHandsTrackingApp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MediaPipeMultiHandsTrackingApp.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MediaPipeMultiHandsTrackingApp.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MediaPipeMultiHandsTrackingApp.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MediaPipeMultiHandsTrackingApp.app.androidTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MediaPipeMultiHandsTrackingApp.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MediaPipeMultiHandsTrackingApp.app.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MediaPipeMultiHandsTrackingApp.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MediaPipeMultiHandsTrackingApp.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MediaPipeMultiHandsTrackingApp.iml" filepath="$PROJECT_DIR$/MediaPipeMultiHandsTrackingApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
 </project>

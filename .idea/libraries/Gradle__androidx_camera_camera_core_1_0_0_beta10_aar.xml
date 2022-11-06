@@ -6,7 +6,6 @@
     <CLASSES>
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4d60b22e6576037234e1ffdb514d7b47/camera-core-1.0.0-beta10/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4d60b22e6576037234e1ffdb514d7b47/camera-core-1.0.0-beta10/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4d60b22e6576037234e1ffdb514d7b47/camera-core-1.0.0-beta10/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
