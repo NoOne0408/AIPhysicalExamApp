@@ -95,13 +95,14 @@ public class PullUps {
                     if(frame_wave2>20&&Math.abs(nowHeight-heightOfPoleTemp)<50){
                         //获得杠高
                         System.out.println("已达到准备状态");
-                        PullUps.keyMessage="已达到准备状态";
+                        PullUps.keyMessage="已达到准备状态,请开始运动";
                         System.out.println("杠高:"+heightOfPoleTemp+",轮次："+frameIndex);
                         mouthHeight=mouth.getY()*height;
                         heightOfPoleTemp=(left_index.getY()*height+right_index.getY()*height)/2;
                         findFirstCorrectFrameFlag=1;
                     }else{
                         //如果是前20帧
+                        PullUps.keyMessage="请保持姿势不动";
                         heightOfPoleTemp=(left_index.getY()*height+right_index.getY()*height)/2;
                         frame_wave2+=1;
                     }
