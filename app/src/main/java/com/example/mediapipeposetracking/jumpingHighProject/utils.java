@@ -56,5 +56,17 @@ public class utils {
         return angle;
     }
 
+    // 计算点1和点2之间X的距离（不是绝对值）
+    public static float cal_X_distance(Point point1,Point point2){
+        float x_distance = (float)(point1.X - point2.X);
+        return x_distance;
+    }
+
+    // 计算点1和点2之间Y的距离（不是绝对值）
+    public static float cal_Y_distance(Point point1,Point point2){
+        float y_distance = (float)(point2.Y - point1.Y);
+        return y_distance;
+    }
+
 
 }

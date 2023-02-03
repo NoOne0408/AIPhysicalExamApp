@@ -38,4 +38,15 @@ public class ArmModule {
         }
         else return false;
     }
+
+    // 判定手臂是否高于肩膀
+    public static boolean isArmAboveShoulder(Point Wrist,Point Elbow,Point Shoulder){
+        boolean result = false;
+        if(utils.cal_Y_distance(Wrist,Shoulder)>0 && utils.cal_Y_distance(Elbow,Shoulder)>0){
+            result =true;
+        }
+        return result;
+    }
+
+
 }

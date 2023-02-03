@@ -5,7 +5,7 @@ public class Point {
     public float Y;
     public float rate;
 
-    Point(float x, float y, float v){
+    public Point(float x, float y, float v){
         X=x;
         Y=y;
         rate=v;
