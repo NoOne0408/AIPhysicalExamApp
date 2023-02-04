@@ -128,8 +128,8 @@ public class jumpingHigh {
             //如果没准备好，那就不断尝试ready的姿态,如果准备好了，那就获取初始状态
 
             if (!isReady){
-                isReady=poseTest.isReady(LShoulder,LWrist,LElbow,LAnkle,
-                        RShoulder,RWrist,RElbow,RAnkle);
+                isReady=poseTest.isReady(LShoulder,LWrist,LElbow,LAnkle,LHeel,LIndex,
+                        RShoulder,RWrist,RElbow,RAnkle,RHeel,RIndex);
                 if (isReady){
                     poseTest.initFrame(LWrist, LElbow, LShoulder, LAnkle, LHeel,LIndex,
                             RWrist, RElbow, RShoulder, RAnkle,RHeel,RIndex);

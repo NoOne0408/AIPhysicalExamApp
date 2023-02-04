@@ -1,6 +1,8 @@
 package com.example.mediapipeposetracking.jumpingHighProject;
 
 
+import java.util.LinkedList;
+
 public class PoseTest {
     private static float threshold_small;//胳膊小阈值
     private static int threshold_arm_angle_sub;//胳膊弯曲角度误差值
@@ -14,6 +16,16 @@ public class PoseTest {
     public static int width=1080;
     public static int hight=2340;
     public static String keyMessage="";
+
+    //用来判断脚的移动速度和幅度
+    public static LinkedList<Point> feet_L_index_list = new LinkedList<>();
+    public static LinkedList<Point> feet_R_index_list = new LinkedList<>();
+//    public static LinkedList<Point> feet_L_distance_list = new LinkedList<>();
+//    public static LinkedList<Point> feet_R_distance_list = new LinkedList<>();
+    public static int feet_list_maxSize = 10;
+    private static Point init_feet_point;
+    public static float feet_L_distance_sum = 0;//记录左脚maxSize个时间内的移动距离之和
+    public static float feet_R_distance_sum = 0;//记录左脚maxSize个时间内的移动距离之和
 
 
     //设置测试阈值
@@ -149,21 +161,17 @@ public class PoseTest {
     }
 
     //判断是否达到初始判断条件（开始给它运行检测了）
-    public boolean isReady(Point LShoulder,Point LWrist,Point LElbow,Point LAnkle,
-                           Point RShoulder,Point RWrist,Point RElbow,Point RAnkle){
-        //手臂前端部分在双杠上伸直 tag1
-        Point floor_left = new Point(LWrist.X,3000,0);
-        Point floor_right = new Point(RWrist.X,3000,0);
-        boolean isArmStright_left = ArmModule.isArmStright(floor_left, LWrist, LElbow, 160);
-        boolean isArmStright_right = ArmModule.isArmStright(floor_right, RWrist, RElbow, 160);
-        boolean armStrightFlag=(isArmStright_left || isArmStright_right);
+    public boolean isReady(Point LShoulder,Point LWrist,Point LElbow,Point LAnkle,Point LHeel,Point LIndex,
+                           Point RShoulder,Point RWrist,Point RElbow,Point RAnkle,Point RHeel,Point RIndex){
+        //手臂高于肩膀
+        boolean is_L_ArmAboveShoulder = ArmModule.isArmAboveShoulder(LWrist,LElbow,LShoulder);
+        boolean is_R_ArmAboveShoulder = ArmModule.isArmAboveShoulder(RWrist,RElbow,RShoulder);
+        boolean armAboveShoulder = (is_L_ArmAboveShoulder || is_R_ArmAboveShoulder);
 
-        //胳膊呈现90°
-        boolean isArm90_left = ArmModule.isArm90(LWrist, LElbow, LShoulder, 100);
-        boolean isArm90_right = ArmModule.isArm90(RWrist, RElbow, RShoulder, 100);
-        boolean arm90Flag = isArm90_left || isArm90_right;
+        //脚部是否移动（这个函数里的对于左右脚的距离判断阈值，需要调整）！！！！！
+        boolean is_feet_Moved = FootModule.isFeetMoved(LAnkle,RAnkle,LHeel,RHeel,LIndex,RIndex,feet_L_index_list,feet_R_index_list,10,10);
 
-        if (armStrightFlag && arm90Flag){
+        if (armAboveShoulder && !is_feet_Moved){
             return true;
         }
 
