@@ -124,41 +124,9 @@ public class PoseTest {
     public  void initFrame(Point LWrist, Point LElbow, Point LShoulder, Point LAnkle,Point LHeel,Point LIndex,
                            Point RWrist, Point RElbow, Point RShoulder, Point RAnkle,Point RHeel,Point RIndex){
 
-        this.arm_length_left=utils.cal_distance(LWrist,LShoulder);
-        System.out.println("初始状态：左胳膊长"+ arm_length_left);
-
-        this.arm_length_right=utils.cal_distance(RWrist,RShoulder);
-        System.out.println("初始状态：右胳膊长"+ arm_length_right);
-
-        //获取腕关节初始点
-        this.LWristPoint = LWrist;
-        this.RWristPoint = RWrist;
-
-        //获取踝关节初始点
-        this.LAnklePoint = LAnkle;
-        this.RAnklePoint = RAnkle;
-
-        //获取脚部节点
-        this.LHeelPoint=LHeel;
-        this.RHeelPoint=RHeel;
-        this.LIndexPoint=LIndex;
-        this.RIndexPoint=RIndex;
-
-
-        //获取初始胳膊角度
-        PoseTest.LArmAngle=utils.calAngle(LWrist, LElbow, LElbow, LShoulder);
-        PoseTest.RArmAngle=utils.calAngle(RWrist, RElbow, RElbow, RShoulder);
-        System.out.println("初始状态：左胳膊夹角"+LArmAngle);
-        System.out.println("初始状态：右胳膊夹角"+RArmAngle);
-
-        //获取初始胳膊与身体夹角
-        //获取双臂与躯干角度
-        this.LArmBodyAngle=utils.calAngle(LWrist,LShoulder,LShoulder,LAnkle);
-        this.RArmBodyAngle=utils.calAngle(RWrist,RShoulder,RShoulder,RAnkle);
-        System.out.println("初始状态：左胳膊身体角度"+LArmBodyAngle);
-        System.out.println("初始状态：右胳膊身体角度"+RArmBodyAngle);
-
-
+        this.init_L_feet_point = new Point((LAnkle.X+LHeel.X+LIndex.X)/3,(LAnkle.Y+LHeel.Y+LIndex.Y)/3,(LAnkle.rate+LHeel.rate+LIndex.rate)/3);
+        this.init_R_feet_point = new Point((RAnkle.X+RHeel.X+RIndex.X)/3,(RAnkle.Y+RHeel.Y+RIndex.Y)/3,(RAnkle.rate+RHeel.rate+RIndex.rate)/3);
+        
     }
 
     //判断是否达到初始判断条件（开始给它运行检测了）
