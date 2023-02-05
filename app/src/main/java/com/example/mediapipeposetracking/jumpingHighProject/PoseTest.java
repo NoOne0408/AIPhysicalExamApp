@@ -199,6 +199,14 @@ public class PoseTest {
         return false;
     }
 
+    //在jumpinghigh调用recover函数的时候，调用此函数将列表和距离总和清空
+    public void recover(){
+        feet_L_index_list = new LinkedList<>();
+        feet_R_index_list = new LinkedList<>();
+        feet_L_distance_sum = 0;
+        feet_R_distance_sum = 0;
+    }
+
 
 
 }

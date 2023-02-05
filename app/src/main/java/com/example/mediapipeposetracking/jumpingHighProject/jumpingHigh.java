@@ -80,6 +80,8 @@ public class jumpingHigh {
         //用于判断是不是达到准备动作要求
         isReady=false;
 
+        //调用posetest的recover函数
+        poseTest.recover();
 
     }
 
