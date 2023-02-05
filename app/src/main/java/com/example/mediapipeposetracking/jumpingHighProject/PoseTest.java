@@ -23,7 +23,8 @@ public class PoseTest {
 //    public static LinkedList<Point> feet_L_distance_list = new LinkedList<>();
 //    public static LinkedList<Point> feet_R_distance_list = new LinkedList<>();
     public static int feet_list_maxSize = 10;
-    private static Point init_feet_point;
+    private static Point init_L_feet_point;
+    private static Point init_R_feet_point;
     public static float feet_L_distance_sum = 0;//记录左脚maxSize个时间内的移动距离之和
     public static float feet_R_distance_sum = 0;//记录左脚maxSize个时间内的移动距离之和
 

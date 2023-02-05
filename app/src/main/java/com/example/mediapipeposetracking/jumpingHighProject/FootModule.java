@@ -27,7 +27,7 @@ public class FootModule {
                               Point LHeel,Point RHeel,
                               Point LIndex,Point RIndex,
                                       LinkedList<Point> feet_L_index_list,LinkedList<Point> feet_R_index_list,
-                              float l_distancwe,float r_distance){
+                              float l_distance,float r_distance){
 
         //根据三个点，合成一个新的脚部中心坐标点
         Point L_feet = new Point((LAnkle.X+LHeel.X+LIndex.X)/3,(LAnkle.Y+LHeel.Y+LIndex.Y)/3,(LAnkle.rate+LHeel.rate+LIndex.rate)/3);
@@ -86,7 +86,7 @@ public class FootModule {
             PoseTest.feet_R_distance_sum -= R_minus;
         }
 
-        if(PoseTest.feet_L_distance_sum > l_distancwe && PoseTest.feet_R_distance_sum>r_distance){
+        if(PoseTest.feet_L_distance_sum > l_distance && PoseTest.feet_R_distance_sum>r_distance){
             return true;
         }
         else{
