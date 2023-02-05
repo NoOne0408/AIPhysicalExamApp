@@ -46,6 +46,11 @@ public class jumpingHigh {
     //用于判断是不是达到准备动作要求
     private static boolean isReady=false;
 
+    //记录跳高的高度，以及判断是否已经移动、跳跃记录成功
+    private static float jumping_distance = 0;
+    private static boolean Jumping_successive = false;
+    private static boolean hasMoved = false;
+
 
     Point RShoulder,LShoulder,RHip,LHip,RKeen,LKeen,RAnkle,LAnkle,Nose;
     Point RElbow,LElbow,RWrist,LWrist;
@@ -82,6 +87,11 @@ public class jumpingHigh {
 
         //调用posetest的recover函数
         poseTest.recover();
+
+        //将跳高记录抹除
+        jumping_distance = 0;
+        Jumping_successive = false;
+        hasMoved = false;
 
     }
 
@@ -164,111 +174,22 @@ public class jumpingHigh {
 
 
     private void poseJudge(){
-
-        boolean[] result=poseTest.isPoseCorrect(LShoulder,LHip,LKeen,LAnkle,LHeel,LIndex,
-                RShoulder,RHip,RKeen,RAnkle,RHeel,RIndex);
-        bend_leg_flag=result[0];
-        bow_flag=result[1];
-
-        if (bend_leg_flag){
-            System.out.println("请伸直双腿！");
-            PoseTest.keyMessage="请伸直双腿！";
-            //这里有一个计数环节别忘了
-            bend_leg_count+=1;
-        }
-        else System.out.println("双腿直");
-
-        if(bow_flag){
-            System.out.println("请挺直躯干！");
-            PoseTest.keyMessage="请挺直躯干！";
-            bow_count+=1;
-        }
-        else System.out.println("躯干直");
-
-
-
-        //判断是否到达准备状态
-        boolean isStartPoseFlag=poseTest.isStartPose(LShoulder,LWrist,LElbow,LAnkle,
-                RShoulder,RWrist,RElbow,RAnkle);
-
-        if(isStartPoseFlag) {
-            System.out.println("到达准备状态!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            PoseTest.keyMessage="到达准备状态！";
-            start_flag=true;
-            //获取当前时间戳
-            start_time= System.currentTimeMillis();
-            bend_leg_flag=false;
-            bow_flag=false;
-            move_feet_flag=false;
-        }
-        else {
-            System.out.println("未到达准备状态");
+        //已经跳跃成功了,输出成绩并直接返回
+        if(Jumping_successive == true){
+            PoseTest.keyMessage = "跳跃高度: "+jumping_distance;
+            return ;
         }
 
-        //是否塌腰挺腹多次/弯腿多次
-        boolean finish_correct_flag=true;
-
-        //本次动作是否标准
-        boolean now_correct=!bend_leg_flag && !bow_flag;
-//      boolean now_correct=true;
-
-        if(now_correct==false){
-            //腿部和身体都弯曲
-            if(bend_leg_flag && bow_flag){
-                PoseTest.keyMessage="屈髋且屈膝,本次不计数";
-            }
-            //腿部弯曲
-            else if(bend_leg_flag){
-                PoseTest.keyMessage="屈膝或蹬腿,本次不计数";
-            }
-            //腿部弯曲
-            else if(bow_flag){
-                PoseTest.keyMessage="屈髋,本次不计数";
-            }
-            start_flag=false;
-            return;
+        //还没移动过
+        if(hasMoved == false){
+            hasMoved = poseTest.hasMoved(LAnkle,LHeel,LIndex,RAnkle,RHeel,RIndex);
         }
-
-        //判断是否到达计数状态
-        condition_satisfy=poseTest.satisfyCondition(LWrist,LElbow,LShoulder,LAnkle,RWrist,RElbow,RShoulder,RAnkle,Nose);
-//
-        if (condition_satisfy){
-            System.out.println("满足要求");
-            PoseTest.keyMessage="达到计数状态！";
-            count_flag = true;
-            count_time = System.currentTimeMillis();
+        //已经移动过了
+        else{
 
         }
 
 
-
-        //计数时间点是否准确
-        boolean finish_time=start_flag && count_flag && start_time<count_time;
-
-        //判断是否计数,满足上述四个条件
-
-        if(condition_satisfy&&finish_correct_flag&&now_correct&&finish_time){
-            count+=1;
-            System.out.println("计数+1 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  当前个数："+count);
-            PoseTest.keyMessage="计数+1 ！";
-            start_flag=false;
-            count_flag=false;
-            condition_satisfy=false;
-
-            start_time=max_time;
-            count_time=max_time;
-
-            bend_leg_count=0;
-            bow_count=0;
-
-            count_slot=System.currentTimeMillis();
-            System.out.println("计数间隔时间："+count_slot);
-        }
-
-        n+=1;
-        bend_leg_flag=false;
-        bow_flag=false;
-        move_feet_flag=false;
 
     }
 

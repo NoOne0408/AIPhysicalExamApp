@@ -126,7 +126,7 @@ public class PoseTest {
 
         this.init_L_feet_point = new Point((LAnkle.X+LHeel.X+LIndex.X)/3,(LAnkle.Y+LHeel.Y+LIndex.Y)/3,(LAnkle.rate+LHeel.rate+LIndex.rate)/3);
         this.init_R_feet_point = new Point((RAnkle.X+RHeel.X+RIndex.X)/3,(RAnkle.Y+RHeel.Y+RIndex.Y)/3,(RAnkle.rate+RHeel.rate+RIndex.rate)/3);
-        
+
     }
 
     //判断是否达到初始判断条件（开始给它运行检测了）
@@ -174,6 +174,19 @@ public class PoseTest {
         feet_R_index_list = new LinkedList<>();
         feet_L_distance_sum = 0;
         feet_R_distance_sum = 0;
+        init_L_feet_point = null;
+        init_R_feet_point = null;
+    }
+
+    //判断开始起跳过程中，脚部开始移动了没有
+    public boolean hasMoved(Point LAnkle,Point LHeel,Point LIndex,Point RAnkle,Point RHeel,Point RIndex){
+        Point L_feet = new Point((LAnkle.X+LHeel.X+LIndex.X)/3,(LAnkle.Y+LHeel.Y+LIndex.Y)/3,(LAnkle.rate+LHeel.rate+LIndex.rate)/3);
+        Point R_feet = new Point((RAnkle.X+RHeel.X+RIndex.X)/3,(RAnkle.Y+RHeel.Y+RIndex.Y)/3,(RAnkle.rate+RHeel.rate+RIndex.rate)/3);
+        float L_distance = utils.cal_distance(L_feet,init_L_feet_point);
+        float R_distance = utils.cal_distance(R_feet,init_R_feet_point);
+        //这个阈值还没定好，先随便写一个
+        return L_distance> 10 && R_distance>10;
+
     }
 
 
