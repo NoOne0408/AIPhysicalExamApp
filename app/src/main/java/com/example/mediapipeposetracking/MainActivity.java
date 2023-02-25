@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mediapipeposetracking.doubleBarflexionProject.doubleBarflexion;
+import com.example.mediapipeposetracking.jumpingHighProject.jumpingHigh;
 import com.example.mediapipeposetracking.obliquePullUpsProject.ArmModule;
 import com.example.mediapipeposetracking.obliquePullUpsProject.BodyModule;
 import com.example.mediapipeposetracking.obliquePullUpsProject.FootModule;
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
     ObliquePullUps obliquePullUps = new ObliquePullUps();
     doubleBarflexion _doubleBarflexion = new doubleBarflexion();
     PullUps pullUps=new PullUps();
+    jumpingHigh _jumpingHigh = new jumpingHigh();
 
     Point RShoulder, LShoulder, RHip, LHip, RKeen, LKeen, RAnkle, LAnkle, Nose;
     Point RElbow, LElbow, RWrist, LWrist;
@@ -108,6 +110,10 @@ public class MainActivity extends AppCompatActivity {
     com.example.mediapipeposetracking.doubleBarflexionProject.Point LAnkle_doubleBarflexion;
     com.example.mediapipeposetracking.doubleBarflexionProject.Point Nose_doubleBarflexion;
 
+    //points of jumpingHigh
+    com.example.mediapipeposetracking.jumpingHighProject.Point J_RShoulder, J_LShoulder, J_RHip, J_LHip, J_RKeen, J_LKeen, J_RAnkle, J_LAnkle, J_Nose;
+    com.example.mediapipeposetracking.jumpingHighProject.Point J_RElbow, J_LElbow, J_RWrist, J_LWrist;
+    com.example.mediapipeposetracking.jumpingHighProject.Point J_RHeel, J_LHeel, J_RIndex, J_LIndex;
 
     //用于显示计数结果的控件
     public static TextView tvCount;
@@ -132,6 +138,11 @@ public class MainActivity extends AppCompatActivity {
             if(project_name.equals("pullUps")){
                 MainActivity.tvCount.setText(PullUps.count+"");
                 MainActivity.tvAction.setText(PullUps.keyMessage);
+            }
+            if (project_name.equals("jumpingHigh")) {
+                String out = jumpingHigh.count + "";
+                MainActivity.tvCount.setText(out);
+                MainActivity.tvAction.setText(com.example.mediapipeposetracking.jumpingHighProject.PoseTest.keyMessage);
             }
             super.handleMessage(msg);
 
@@ -228,6 +239,31 @@ public class MainActivity extends AppCompatActivity {
                         com.example.mediapipeposetracking.doubleBarflexionProject.Point RIndex_doubleBarflexion = feet_points_doubleBarflexion[2];
                         com.example.mediapipeposetracking.doubleBarflexionProject.Point LIndex_doubleBarflexion = feet_points_doubleBarflexion[3];
 
+                        //跳高
+                        com.example.mediapipeposetracking.jumpingHighProject.Point[] J_body_points = com.example.mediapipeposetracking.jumpingHighProject.BodyModule.getBodyKeyPoints(landmarks);
+
+                        J_RShoulder = J_body_points[0];
+                        J_LShoulder = J_body_points[1];
+                        J_RHip = J_body_points[2];
+                        J_LHip = J_body_points[3];
+                        J_RKeen = J_body_points[4];
+                        J_LKeen = J_body_points[5];
+                        J_RAnkle = J_body_points[6];
+                        J_LAnkle = J_body_points[7];
+                        J_Nose = J_body_points[8];
+
+
+                        com.example.mediapipeposetracking.jumpingHighProject.Point[] J_arm_points = com.example.mediapipeposetracking.jumpingHighProject.ArmModule.getArmKeyPoints(landmarks);
+                        J_RWrist = J_arm_points[0];
+                        J_LWrist = J_arm_points[1];
+                        J_RElbow = J_arm_points[2];
+                        J_LElbow = J_arm_points[3];
+
+                        com.example.mediapipeposetracking.jumpingHighProject.Point[] J_feet_points = com.example.mediapipeposetracking.jumpingHighProject.FootModule.getFootKeyPoints(landmarks);
+                        J_RHeel = J_feet_points[0];
+                        J_LHeel = J_feet_points[1];
+                        J_RIndex = J_feet_points[2];
+                        J_LIndex = J_feet_points[3];
 
 
                         //按照自己的项目调用方式调用
@@ -249,6 +285,10 @@ public class MainActivity extends AppCompatActivity {
                             _doubleBarflexion.updatePoints(RShoulder_doubleBarflexion, LShoulder_doubleBarflexion, RHip_doubleBarflexion, LHip_doubleBarflexion, RKeen_doubleBarflexion, LKeen_doubleBarflexion, RAnkle_doubleBarflexion, LAnkle_doubleBarflexion, Nose_doubleBarflexion,
                                     RElbow_doubleBarflexion, LElbow_doubleBarflexion, RWrist_doubleBarflexion, LWrist_doubleBarflexion, RHeel_doubleBarflexion, LHeel_doubleBarflexion, RIndex_doubleBarflexion, LIndex_doubleBarflexion);
                             _doubleBarflexion.startDetection();
+                        } else if(project.equals("jumpingHigh")){
+                            //跳高检测开始
+                            _jumpingHigh.updatePoints(J_RShoulder,J_LShoulder,J_RHip,J_LHip,J_RKeen,J_LKeen,J_RAnkle,J_LAnkle,J_Nose,J_RElbow,J_LElbow,J_RWrist,J_LWrist,J_RHeel,J_LHeel,J_RIndex,J_LIndex);
+                            _jumpingHigh.startDetection();
                         }
 
 
@@ -281,6 +321,7 @@ public class MainActivity extends AppCompatActivity {
         Button button_pullups = findViewById(R.id.button_2);
 //        Button button3 = findViewById(R.id.button_3);
         Button button_doublebarflexion = findViewById(R.id.button_4);
+        Button button_jumpingHigh = findViewById(R.id.button_5);
 
         Button button_close = findViewById(R.id.button_close);
 
@@ -315,8 +356,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
         button_doublebarflexion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -327,6 +366,20 @@ public class MainActivity extends AppCompatActivity {
                 onResumeTest();
                 checkCamera();
                 poseDetection("doubleBarBuckling");
+            }
+        });
+
+
+        button_jumpingHigh.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                // 在其中写入响应方法
+                System.out.println("纵跳摸高项目检测");
+                button_jumpingHigh.setText("纵跳摸高检测");
+                project_name = "jumpingHigh";
+                onResumeTest();
+                checkCamera();
+                poseDetection("jumpingHigh");
             }
         });
 
