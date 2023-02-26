@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.tvAction.setText(PullUps.keyMessage);
             }
             if (project_name.equals("jumpingHigh")) {
-                String out = jumpingHigh.count + "";
+                String out = jumpingHigh.L_msg + "";
                 MainActivity.tvCount.setText(out);
                 MainActivity.tvAction.setText(com.example.mediapipeposetracking.jumpingHighProject.PoseTest.keyMessage);
             }
@@ -407,6 +407,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (project_name.equals("pullUps")) {
                     pullUps.recover();
+                }
+                if (project_name.equals("jumpingHigh")) {
+                    _jumpingHigh.recover();
                 }
 
             }

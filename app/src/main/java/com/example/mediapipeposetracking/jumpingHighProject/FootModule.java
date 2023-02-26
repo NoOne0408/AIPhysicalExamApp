@@ -85,7 +85,8 @@ public class FootModule {
             PoseTest.feet_L_distance_sum -= L_minus;
             PoseTest.feet_R_distance_sum -= R_minus;
         }
-
+//        jumpingHigh.L_msg="L"+PoseTest.feet_L_distance_sum;
+//        PoseTest.keyMessage="R"+PoseTest.feet_R_distance_sum;
         if(PoseTest.feet_L_distance_sum > l_distance && PoseTest.feet_R_distance_sum>r_distance){
             return true;
         }

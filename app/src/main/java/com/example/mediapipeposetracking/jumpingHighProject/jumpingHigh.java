@@ -43,6 +43,7 @@ public class jumpingHigh {
 
     private int n=0;
     public static int count=0;
+    public static String L_msg = "";
     //用于判断是不是达到准备动作要求
     private static boolean isReady=false;
 
@@ -185,6 +186,17 @@ public class jumpingHigh {
         }
         //已经移动过了
         else{
+            //先写死所取得的跳高距离
+            jumping_distance = 20;
+            if(jumping_distance>30){
+                Jumping_successive = true;
+            }
+            //判断垫脚
+            else{
+                PoseTest.keyMessage = "出现垫脚，请重新准备";
+//                这个recover是要用的，现在注释是为了方便看出垫脚或者跳高的输出信息
+//                recover();
+            }
 
         }
 

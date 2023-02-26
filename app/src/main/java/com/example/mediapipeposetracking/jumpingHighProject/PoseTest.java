@@ -136,9 +136,10 @@ public class PoseTest {
         boolean is_L_ArmAboveShoulder = ArmModule.isArmAboveShoulder(LWrist,LElbow,LShoulder);
         boolean is_R_ArmAboveShoulder = ArmModule.isArmAboveShoulder(RWrist,RElbow,RShoulder);
         boolean armAboveShoulder = (is_L_ArmAboveShoulder || is_R_ArmAboveShoulder);
-
+        //为了测试先写成true
+        armAboveShoulder = true;
         //脚部是否移动（这个函数里的对于左右脚的距离判断阈值，需要调整）！！！！！
-        boolean is_feet_Moved = FootModule.isFeetMoved(LAnkle,RAnkle,LHeel,RHeel,LIndex,RIndex,feet_L_index_list,feet_R_index_list,10,10);
+        boolean is_feet_Moved = FootModule.isFeetMoved(LAnkle,RAnkle,LHeel,RHeel,LIndex,RIndex,feet_L_index_list,feet_R_index_list,100,100);
 
         if (armAboveShoulder && !is_feet_Moved){
             return true;
@@ -179,13 +180,14 @@ public class PoseTest {
     }
 
     //判断开始起跳过程中，脚部开始移动了没有
+    //注意现在的逻辑是左右移动
     public boolean hasMoved(Point LAnkle,Point LHeel,Point LIndex,Point RAnkle,Point RHeel,Point RIndex){
         Point L_feet = new Point((LAnkle.X+LHeel.X+LIndex.X)/3,(LAnkle.Y+LHeel.Y+LIndex.Y)/3,(LAnkle.rate+LHeel.rate+LIndex.rate)/3);
         Point R_feet = new Point((RAnkle.X+RHeel.X+RIndex.X)/3,(RAnkle.Y+RHeel.Y+RIndex.Y)/3,(RAnkle.rate+RHeel.rate+RIndex.rate)/3);
         float L_distance = utils.cal_distance(L_feet,init_L_feet_point);
         float R_distance = utils.cal_distance(R_feet,init_R_feet_point);
         //这个阈值还没定好，先随便写一个
-        return L_distance> 10 && R_distance>10;
+        return L_distance> 300 || R_distance>300;
 
     }
 
