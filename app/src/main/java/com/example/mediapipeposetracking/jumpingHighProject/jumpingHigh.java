@@ -109,7 +109,6 @@ public class jumpingHigh {
         this.LKeen=LKeen;
         this.RAnkle=RAnkle;
         this.LAnkle=LAnkle;
-        this.Nose=Nose;
 
         this.RElbow=RElbow;
         this.LElbow=LElbow;

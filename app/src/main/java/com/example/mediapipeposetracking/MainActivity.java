@@ -250,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
                         J_LKeen = J_body_points[5];
                         J_RAnkle = J_body_points[6];
                         J_LAnkle = J_body_points[7];
-                        J_Nose = J_body_points[8];
 
 
                         com.example.mediapipeposetracking.jumpingHighProject.Point[] J_arm_points = com.example.mediapipeposetracking.jumpingHighProject.ArmModule.getArmKeyPoints(landmarks);
