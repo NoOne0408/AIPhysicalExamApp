@@ -17,6 +17,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import android.os.AsyncTask;
+import androidx.appcompat.app.AppCompatActivity;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.io.IOException;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mediapipeposetracking.doubleBarflexionProject.doubleBarflexion;
@@ -321,6 +332,8 @@ public class MainActivity extends AppCompatActivity {
 //        Button button3 = findViewById(R.id.button_3);
         Button button_doublebarflexion = findViewById(R.id.button_4);
         Button button_jumpingHigh = findViewById(R.id.button_5);
+        Button sendButton = findViewById(R.id.sendButton);
+
 
         Button button_close = findViewById(R.id.button_close);
 
@@ -379,6 +392,14 @@ public class MainActivity extends AppCompatActivity {
                 onResumeTest();
                 checkCamera();
                 poseDetection("jumpingHigh");
+            }
+        });
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 在按钮点击时执行的操作
+                sendJsonToServer();
             }
         });
 
@@ -551,5 +572,51 @@ public class MainActivity extends AppCompatActivity {
                                 processor.getVideoSurfaceOutput().setSurface(null);
                             }
                         });
+    }
+
+    private void sendJsonToServer() {
+        // 创建 JSON 对象
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("key1", "value1");
+            jsonObject.put("key2", "value2");
+            // 添加其他键值对...
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        // 使用 AsyncTask 执行网络请求（在主线程中执行可能导致网络请求异常）
+        new SendJsonTask().execute(jsonObject.toString());
+    }
+
+    private class SendJsonTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            String json = params[0];
+
+            // 使用 OkHttp 发送 POST 请求
+            OkHttpClient client = new OkHttpClient();
+            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+            RequestBody body = RequestBody.create(JSON, json);
+            Request request = new Request.Builder()
+                    .url("http://10.112.132.13:5000/push_pose_to_GCN") // 替换为你的服务器 URL
+                    .post(body)
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                return response.body().string();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "Error: " + e.getMessage();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // 在网络请求完成后执行的操作
+            // 处理服务器响应
+            System.out.println("小z先生");
+        }
     }
 }

@@ -5,6 +5,7 @@
     <uses-sdk android:targetSdkVersion="27" />
     <!-- For using the camera -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <!-- For MediaPipe -->
