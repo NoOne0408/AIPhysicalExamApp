@@ -53,7 +53,9 @@ import com.google.mediapipe.framework.PacketGetter;
 import com.google.mediapipe.glutil.EglManager;
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
@@ -309,6 +311,59 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+
+    private long zzzz = 0;
+    private boolean isLuZhi = false;
+    private List<List> poseFinalList = new ArrayList();
+    public void poseDetectionAndSendToServer() {
+        tvCount = findViewById(R.id.count_result);
+        tvAction = findViewById(R.id.action_advice);
+
+        //显示数据结果
+        findViewById(R.id.SendPoseToServerLayout).setVisibility(View.VISIBLE);
+        findViewById(R.id.rLayoutButton).setVisibility(View.INVISIBLE);
+
+        // 获取是否检测到pose模型输出
+        processor.addPacketCallback(
+
+                OUTPUT_LANDMARKS_STREAM_NAME,
+                (packet) -> {
+//                    Log.v(TAG, "Received multi-pose landmarks packet.");
+
+//                    Log.v(TAG, packet.toString());
+                    byte[] landmarksRaw = PacketGetter.getProtoBytes(packet);
+                    try {
+                        NormalizedLandmarkList landmarks = NormalizedLandmarkList.parseFrom(landmarksRaw);
+                        if (landmarks == null) {
+                            Log.v(TAG, "[TS:" + packet.getTimestamp() + "] No iris landmarks.");
+                            return;
+                        }
+                        if(isLuZhi){
+                            zzzz += 1;
+                            List<List<Float>> poseList = new ArrayList<>();
+                            for (int i = 0; i < 33; i++) {
+                                List<Float> innerList = new ArrayList<>();
+                                innerList.add(landmarks.getLandmark(i).getX());
+                                innerList.add(1 - landmarks.getLandmark(i).getY()); // 坐标是上下颠倒的，所以是1减去y坐标
+                                innerList.add(landmarks.getLandmark(i).getZ());
+                                poseList.add(innerList);
+                            }
+                            poseFinalList.add(poseList);
+                        }
+                        Log.v(TAG, "zzzz的数字： "+zzzz+"");
+                        Log.v(TAG, "poseFinalList的长度： "+poseFinalList.size()+"");
+
+                        landmarks.getLandmark(1).getX();
+                        landmarks.getLandmark(1).getY();
+                        landmarks.getLandmark(1).getVisibility();
+
+                    } catch (InvalidProtocolBufferException e) {
+                        Log.e(TAG, "Couldn't Exception received - " + e);
+                        return;
+                    }
+                });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -332,7 +387,10 @@ public class MainActivity extends AppCompatActivity {
 //        Button button3 = findViewById(R.id.button_3);
         Button button_doublebarflexion = findViewById(R.id.button_4);
         Button button_jumpingHigh = findViewById(R.id.button_5);
-        Button sendButton = findViewById(R.id.sendButton);
+        Button PoseSegmentationButton = findViewById(R.id.PoseSegmentationButton); //主页面的按钮
+        Button StartButton = findViewById(R.id.StartButton); //开始录制的按钮
+        Button sendButton = findViewById(R.id.sendButton); //发送pose到客户端并接收返回的结果
+        Button ButtonCloseSendPoseToServer = findViewById(R.id.button_close_SendPoseToServerLayout); //退出按钮
 
 
         Button button_close = findViewById(R.id.button_close);
@@ -399,7 +457,44 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 在按钮点击时执行的操作
-                sendJsonToServer();
+                isLuZhi = false;
+                sendJsonToServer(poseFinalList);
+                zzzz = 0;
+            }
+        });
+
+        PoseSegmentationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 在按钮点击时执行的操作
+                poseFinalList = new ArrayList<>();
+                project_name = "PoseSegmentation";
+                onResumeTest();
+                checkCamera();
+                poseDetectionAndSendToServer();
+            }
+        });
+
+        ButtonCloseSendPoseToServer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isLuZhi = false;
+                zzzz = 0;
+                findViewById(R.id.SendPoseToServerLayout).setVisibility(View.INVISIBLE);
+                findViewById(R.id.rLayoutButton).setVisibility(View.VISIBLE);
+
+                converter.close();
+
+                // Hide preview display until we re-open the camera again.
+                previewDisplayView.setVisibility(View.GONE);
+
+            }
+        });
+
+        StartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isLuZhi = true;
             }
         });
 
@@ -574,12 +669,12 @@ public class MainActivity extends AppCompatActivity {
                         });
     }
 
-    private void sendJsonToServer() {
+    private void sendJsonToServer(List poseFinalList) {
         // 创建 JSON 对象
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("key1", "value1");
-            jsonObject.put("key2", "value2");
+            jsonObject.put("pose", poseFinalList);
+            jsonObject.put("actionType", "相机的引体向上正面特征序列");
             // 添加其他键值对...
         } catch (JSONException e) {
             e.printStackTrace();
@@ -599,7 +694,7 @@ public class MainActivity extends AppCompatActivity {
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             RequestBody body = RequestBody.create(JSON, json);
             Request request = new Request.Builder()
-                    .url("http://10.112.132.13:5000/push_pose_to_GCN") // 替换为你的服务器 URL
+                    .url("http://10.112.132.13:5000/video_pose_segmentation_by_sample_feature") // 替换为我的服务器 URL
                     .post(body)
                     .build();
 
@@ -616,7 +711,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             // 在网络请求完成后执行的操作
             // 处理服务器响应
-            System.out.println("小z先生");
+            System.out.println(result);
         }
     }
 }
