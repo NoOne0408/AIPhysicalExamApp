@@ -785,6 +785,8 @@ public class MainActivity extends AppCompatActivity {
                 jsonPoseTextView = findViewById(R.id.poseTextView);
                 jsonPoseTextView.setText("pose序列: "+pose.toString());
                 System.out.println("JSONArray 的形状（长度）为: " + pose.length());
+                System.out.println("pose.getJSONArray(0): " + pose.getJSONArray(0).getJSONArray(0));
+                DrawActivity.poseArrays = pose;
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
