@@ -398,6 +398,7 @@ public class MainActivity extends AppCompatActivity {
         Button sendButton = findViewById(R.id.sendButton); //发送pose到客户端并接收返回的结果
         Button ButtonCloseSendPoseToServer = findViewById(R.id.button_close_SendPoseToServerLayout); //返回主页面按钮
         Button startAnimationButton = findViewById(R.id.startAnimationButton); //展示返回结果
+        Button TrySkeletonButton = findViewById(R.id.TrySkeletonButton); //尝试绘画骨骼动画
         Button ShowResultLayoutCloseButton = findViewById(R.id.ShowResultLayoutCloseButton); //从展示页面返回主页面
         zzzzTextView = findViewById(R.id.zzzzTextView);
 
@@ -526,6 +527,14 @@ public class MainActivity extends AppCompatActivity {
 
                 // Hide preview display until we re-open the camera again.
                 previewDisplayView.setVisibility(View.GONE);
+            }
+        });
+
+        TrySkeletonButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, DrawActivity.class);
+                startActivity(intent);
             }
         });
 
