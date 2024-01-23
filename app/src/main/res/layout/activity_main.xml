@@ -57,8 +57,7 @@
             android:id="@+id/PoseSegmentationButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="发送pose,接受分割结果"
-            android:layout_below="@+id/sendButton"
+            android:text="动作分割"
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp" />
     </RelativeLayout>
@@ -142,34 +141,88 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="invisible">
+        <TextView
+            android:id="@+id/zzzzTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="25sp"
+            android:layout_centerHorizontal="true"/>
         <Button
             android:id="@+id/StartButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="录制开始"
+            android:layout_below="@+id/zzzzTextView"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp" />
+        <Button
+            android:id="@+id/EndButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="录制结束"
+            android:layout_below="@+id/StartButton"
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp" />
         <Button
             android:id="@+id/sendButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="发送JSON"
-            android:layout_below="@+id/StartButton"
+            android:text="发送数据序列"
+            android:layout_below="@+id/EndButton"
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp" />
         <Button
             android:id="@+id/button_close_SendPoseToServerLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="结束"
+            android:text="返回主页面"
             android:layout_below="@+id/sendButton"
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp" />
+        <Button
+            android:id="@+id/startAnimationButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="结果展示"
+            android:layout_below="@+id/button_close_SendPoseToServerLayout"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp"/>
 
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/ShowResultLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible">
 
+        <Button
+            android:id="@+id/ShowResultLayoutCloseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="返回主页面"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp" />
+        <TextView
+            android:id="@+id/resultTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:layout_below="@id/ShowResultLayoutCloseButton"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+        <TextView
+            android:id="@+id/poseTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:layout_below="@id/resultTextView"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

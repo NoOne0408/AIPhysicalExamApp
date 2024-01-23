@@ -1,6 +1,7 @@
 package com.example.mediapipeposetracking;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -16,11 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import android.os.AsyncTask;
 import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -58,6 +61,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Main activity of MediaPipe example apps.
@@ -315,6 +319,7 @@ public class MainActivity extends AppCompatActivity {
     private long zzzz = 0;
     private boolean isLuZhi = false;
     private List<List> poseFinalList = new ArrayList();
+    private static TextView zzzzTextView;
     public void poseDetectionAndSendToServer() {
         tvCount = findViewById(R.id.count_result);
         tvAction = findViewById(R.id.action_advice);
@@ -389,8 +394,12 @@ public class MainActivity extends AppCompatActivity {
         Button button_jumpingHigh = findViewById(R.id.button_5);
         Button PoseSegmentationButton = findViewById(R.id.PoseSegmentationButton); //主页面的按钮
         Button StartButton = findViewById(R.id.StartButton); //开始录制的按钮
+        Button EndButton = findViewById(R.id.EndButton); //结束录制的按钮
         Button sendButton = findViewById(R.id.sendButton); //发送pose到客户端并接收返回的结果
-        Button ButtonCloseSendPoseToServer = findViewById(R.id.button_close_SendPoseToServerLayout); //退出按钮
+        Button ButtonCloseSendPoseToServer = findViewById(R.id.button_close_SendPoseToServerLayout); //返回主页面按钮
+        Button startAnimationButton = findViewById(R.id.startAnimationButton); //展示返回结果
+        Button ShowResultLayoutCloseButton = findViewById(R.id.ShowResultLayoutCloseButton); //从展示页面返回主页面
+        zzzzTextView = findViewById(R.id.zzzzTextView);
 
 
         Button button_close = findViewById(R.id.button_close);
@@ -459,7 +468,6 @@ public class MainActivity extends AppCompatActivity {
                 // 在按钮点击时执行的操作
                 isLuZhi = false;
                 sendJsonToServer(poseFinalList);
-                zzzz = 0;
             }
         });
 
@@ -494,7 +502,46 @@ public class MainActivity extends AppCompatActivity {
         StartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                poseFinalList = new ArrayList<>();
+                zzzz = 0;
                 isLuZhi = true;
+                zzzzTextView.setText("正在录制中");
+            }
+        });
+
+        EndButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isLuZhi = false;
+                zzzzTextView.setText("录制完毕：共录制"+zzzz+"帧");
+            }
+        });
+
+        startAnimationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                findViewById(R.id.SendPoseToServerLayout).setVisibility(View.INVISIBLE);
+                findViewById(R.id.ShowResultLayout).setVisibility(View.VISIBLE);
+                converter.close();
+
+                // Hide preview display until we re-open the camera again.
+                previewDisplayView.setVisibility(View.GONE);
+            }
+        });
+
+        ShowResultLayoutCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isLuZhi = false;
+                zzzz = 0;
+                findViewById(R.id.ShowResultLayout).setVisibility(View.INVISIBLE);
+                findViewById(R.id.rLayoutButton).setVisibility(View.VISIBLE);
+
+                converter.close();
+
+                // Hide preview display until we re-open the camera again.
+                previewDisplayView.setVisibility(View.GONE);
+
             }
         });
 
@@ -684,13 +731,19 @@ public class MainActivity extends AppCompatActivity {
         new SendJsonTask().execute(jsonObject.toString());
     }
 
+    private TextView jsonPoseTextView;
+    private TextView jsonResultTextView;
     private class SendJsonTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
             String json = params[0];
 
             // 使用 OkHttp 发送 POST 请求
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client =         client = new OkHttpClient.Builder()
+                    .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间为10秒
+                    .readTimeout(10, TimeUnit.SECONDS) // 设置读取超时时间为10秒
+                    .build();
+
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             RequestBody body = RequestBody.create(JSON, json);
             Request request = new Request.Builder()
@@ -711,7 +764,37 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             // 在网络请求完成后执行的操作
             // 处理服务器响应
-            System.out.println(result);
+            try{
+                JSONObject jsonObject = new JSONObject(result);
+                System.out.println("JSONObject:");
+                System.out.println(jsonObject);
+                JSONArray data = jsonObject.getJSONArray("data");
+                JSONArray pose = jsonObject.getJSONArray("pose");
+//                System.out.println(pose.get(1));
+                jsonResultTextView = findViewById(R.id.resultTextView);
+                jsonResultTextView.setText("分割结果: "+data.toString());
+                jsonPoseTextView = findViewById(R.id.poseTextView);
+                jsonPoseTextView.setText("pose序列: "+pose.toString());
+                System.out.println("JSONArray 的形状（长度）为: " + pose.length());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // 代码执行完毕后，在主线程中弹窗通知已经接收到服务器的response
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast toast = Toast.makeText(MainActivity.this, "服务器处理完毕", Toast.LENGTH_SHORT);
+                                toast.setGravity(0, 0, 16);
+                                toast.show();
+                            }
+                        });
+                    }
+                }).start();
+            }catch(JSONException e){
+                e.printStackTrace();
+            }
+
+//            System.out.println("onPostExecute:"+result);
         }
     }
 }
