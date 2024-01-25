@@ -889,9 +889,11 @@ public class MainActivity extends AppCompatActivity {
 //                jsonResultTextView.setText("分割结果: "+data.toString());
                 jsonPoseTextView = findViewById(R.id.poseTextView);
 //                jsonPoseTextView.setText("pose序列: "+pose.toString());
+                System.out.println("JSONData 的形状（长度）为: " + data.length());
                 System.out.println("JSONArray 的形状（长度）为: " + pose.length());
                 System.out.println("pose.getJSONArray(0): " + pose.getJSONArray(0).getJSONArray(0));
                 DrawActivity.poseArrays = pose;
+                DrawActivity.segmentationData = data;
 //                new Thread(new Runnable() {
 //                    @Override
 //                    public void run() {

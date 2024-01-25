@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.WindowManager;
 import android.util.DisplayMetrics;
+import android.widget.RelativeLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,30 +25,61 @@ import java.util.*;
 public class DrawActivity extends Activity {
 
     public static JSONArray poseArrays = new JSONArray();
+    public static JSONArray segmentationData = new JSONArray();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // 设置Activity的ContentView为自定义的DrawView
-        setContentView(new DrawView(this));
+//        setContentView(new DrawView(this));
 
         // 添加返回按钮
-        Button backButton = new Button(this);
-        backButton.setText("返回");
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setContentView(new DrawView(DrawActivity.this));
-                // 点击按钮时关闭当前Activity，返回到前一个Activity
-                finish();
+        for(int i=0;i<DrawActivity.segmentationData.length();i++){
+            Button backButton = new Button(this);
+            backButton.setText("动作片段"+(i+1));
+            try{
+                JSONArray segmentationSubJSONArray = DrawActivity.segmentationData.getJSONArray(i);
+                final int left = Integer.valueOf(String.valueOf(segmentationSubJSONArray.get(0)));
+                final int right = Integer.valueOf(String.valueOf(segmentationSubJSONArray.get(1)));
+                backButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setContentView(new DrawView(DrawActivity.this));
+                        // 点击按钮时关闭当前Activity，返回到前一个Activity
+//                    finish();
+                        Context context = getApplicationContext();
+                        setContentView(new DrawView(left,right,context));
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        });
 
-        // 将按钮添加到布局中
-        addContentView(backButton, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+//            backButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    setContentView(new DrawView(DrawActivity.this));
+//                    // 点击按钮时关闭当前Activity，返回到前一个Activity
+////                    finish();
+//                    Context context = getApplicationContext();
+//                    setContentView(new DrawView(left,left,context));
+//                }
+//            });
+
+            // 创建布局参数，设置按钮在界面中的位置
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            // 设置按钮在父布局中的位置，顶部对齐，上边距 5px
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+            layoutParams.topMargin = 5 + i * 100; // 垂直方向上的间隔
+            backButton.setLayoutParams(layoutParams);
+
+            // 将按钮添加到布局中
+            addContentView(backButton, layoutParams);
+        }
     }
 
     // 自定义的DrawView类，用于画线
@@ -58,9 +90,14 @@ public class DrawActivity extends Activity {
         private int linesToDraw = 200;
         private int currentLine = 0;
         private Handler handler;
+        private int leftTime = 0;
+        private int rightTime = 0 ;
 
-        public DrawView(Context context, AttributeSet attrs) {
-            super(context, attrs);
+        public DrawView(int L, int R,Context context) {
+            super(context);
+            this.leftTime = L;
+            this.rightTime = R;
+            this.currentLine = leftTime;
             init();
         }
 
@@ -95,7 +132,7 @@ public class DrawActivity extends Activity {
         }
 
         private void drawLinesWithDelay(final Canvas canvas) {
-            if (currentLine < DrawActivity.poseArrays.length()) {
+            if (currentLine < rightTime) {
 
                 // 绘制人体动画
                 try {
@@ -223,7 +260,7 @@ public class DrawActivity extends Activity {
                 }
                 // 延时一段时间后继续绘制下一条线
                 currentLine++;
-                if (currentLine < DrawActivity.poseArrays.length()) {
+                if (currentLine < rightTime) {
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
