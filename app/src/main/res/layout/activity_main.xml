@@ -197,6 +197,22 @@
             android:layout_below="@+id/startAnimationButton"
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp"/>
+        <Button
+            android:id="@+id/test1Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="测试引体向上"
+            android:layout_below="@+id/TrySkeletonButton"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp"/>
+        <Button
+            android:id="@+id/test2Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="测试深蹲"
+            android:layout_below="@+id/test1Button"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp"/>
 
 
     </RelativeLayout>

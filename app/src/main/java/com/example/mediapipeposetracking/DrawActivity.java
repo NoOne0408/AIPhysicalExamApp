@@ -38,6 +38,7 @@ public class DrawActivity extends Activity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setContentView(new DrawView(DrawActivity.this));
                 // 点击按钮时关闭当前Activity，返回到前一个Activity
                 finish();
             }
@@ -155,7 +156,7 @@ public class DrawActivity extends Activity {
 
                     canvas.drawLine(x0, y0, x16, y16, paint); // 左腿
                     canvas.drawLine(x16, y16, x17, y17, paint); // 左腿
-                    canvas.drawLine(x17, y17, x17, y18, paint); // 左腿
+                    canvas.drawLine(x17, y17, x18, y18, paint); // 左腿
                     canvas.drawLine(x18, y18, x19, y19, paint); // 左腿
 
                     canvas.drawLine(x0, y0, x12, y12, paint); // 右腿
@@ -222,7 +223,7 @@ public class DrawActivity extends Activity {
                 }
                 // 延时一段时间后继续绘制下一条线
                 currentLine++;
-                if (currentLine < linesToDraw) {
+                if (currentLine < DrawActivity.poseArrays.length()) {
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {

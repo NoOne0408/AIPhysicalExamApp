@@ -62,6 +62,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import android.content.res.AssetManager;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Main activity of MediaPipe example apps.
@@ -401,7 +408,8 @@ public class MainActivity extends AppCompatActivity {
         Button TrySkeletonButton = findViewById(R.id.TrySkeletonButton); //尝试绘画骨骼动画
         Button ShowResultLayoutCloseButton = findViewById(R.id.ShowResultLayoutCloseButton); //从展示页面返回主页面
         zzzzTextView = findViewById(R.id.zzzzTextView);
-
+        Button test1Button = findViewById(R.id.test1Button); //引体向上测试
+        Button test2Button = findViewById(R.id.test2Button); //深蹲测试
 
         Button button_close = findViewById(R.id.button_close);
 
@@ -468,7 +476,103 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // 在按钮点击时执行的操作
                 isLuZhi = false;
-                sendJsonToServer(poseFinalList);
+                sendJsonToServer(poseFinalList,"深蹲单个动作特征序列");
+            }
+        });
+
+        test1Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 在按钮点击时执行的操作
+                try {
+                    Context context = getApplicationContext();
+                    AssetManager assetManager = context.getAssets();
+                    InputStream inputStream = assetManager.open("引体向上视频骨骼序列.json");
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(line);
+                    }
+
+                    bufferedReader.close();
+
+                    // 将读取的 JSON 字符串转换为 JSONArray
+                    JSONArray jsonArray = new JSONArray(stringBuilder.toString());
+                    System.out.println(jsonArray);
+                    System.out.println(jsonArray.length());
+                    List<List> poseToServer = new ArrayList<>();
+
+                    for(int i=0;i<jsonArray.length();i++){
+                        List<List<Float>> poseSubList = new ArrayList<>();
+                        JSONArray poseArray = jsonArray.getJSONArray(i);
+                        for(int j=0;j<33;j++){
+                            JSONArray poseXYZ = poseArray.getJSONArray(j);
+                            float xxx = Float.valueOf(String.valueOf(poseXYZ.get(0)));
+                            float yyy = Float.valueOf(String.valueOf(poseXYZ.get(1)));
+                            float zzz = Float.valueOf(String.valueOf(poseXYZ.get(2)));
+                            List<Float> innerList = new ArrayList<>();
+                            innerList.add(xxx);
+                            innerList.add(yyy);
+                            innerList.add(zzz);
+                            poseSubList.add(innerList);
+                        }
+                        poseToServer.add(poseSubList);
+                    }
+                    sendJsonToServer(poseToServer,"相机的引体向上正面特征序列");
+
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        test2Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 在按钮点击时执行的操作
+                try {
+                    Context context = getApplicationContext();
+                    AssetManager assetManager = context.getAssets();
+                    InputStream inputStream = assetManager.open("深蹲视频骨骼序列.json");
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(line);
+                    }
+
+                    bufferedReader.close();
+
+                    // 将读取的 JSON 字符串转换为 JSONArray
+                    JSONArray jsonArray = new JSONArray(stringBuilder.toString());
+                    System.out.println(jsonArray);
+                    System.out.println(jsonArray.length());
+                    List<List> poseToServer = new ArrayList<>();
+
+                    for(int i=0;i<jsonArray.length();i++){
+                        List<List<Float>> poseSubList = new ArrayList<>();
+                        JSONArray poseArray = jsonArray.getJSONArray(i);
+                        for(int j=0;j<33;j++){
+                            JSONArray poseXYZ = poseArray.getJSONArray(j);
+                            float xxx = Float.valueOf(String.valueOf(poseXYZ.get(0)));
+                            float yyy = Float.valueOf(String.valueOf(poseXYZ.get(1)));
+                            float zzz = Float.valueOf(String.valueOf(poseXYZ.get(2)));
+                            List<Float> innerList = new ArrayList<>();
+                            innerList.add(xxx);
+                            innerList.add(yyy);
+                            innerList.add(zzz);
+                            poseSubList.add(innerList);
+                        }
+                        poseToServer.add(poseSubList);
+                    }
+                    sendJsonToServer(poseToServer,"深蹲单个动作特征序列");
+
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -725,12 +829,12 @@ public class MainActivity extends AppCompatActivity {
                         });
     }
 
-    private void sendJsonToServer(List poseFinalList) {
+    private void sendJsonToServer(List poseFinalList, String actionType) {
         // 创建 JSON 对象
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("pose", poseFinalList);
-            jsonObject.put("actionType", "相机的引体向上正面特征序列");
+            jsonObject.put("actionType", actionType);
             // 添加其他键值对...
         } catch (JSONException e) {
             e.printStackTrace();
@@ -749,8 +853,9 @@ public class MainActivity extends AppCompatActivity {
 
             // 使用 OkHttp 发送 POST 请求
             OkHttpClient client =         client = new OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间为10秒
-                    .readTimeout(10, TimeUnit.SECONDS) // 设置读取超时时间为10秒
+                    .connectTimeout(200, TimeUnit.SECONDS) // 设置连接超时时间为10秒
+                    .readTimeout(200, TimeUnit.SECONDS) // 设置读取超时时间为50秒
+                    .writeTimeout(200, TimeUnit.SECONDS)  // 设置写入超时时间为50秒
                     .build();
 
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -781,26 +886,26 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray pose = jsonObject.getJSONArray("pose");
 //                System.out.println(pose.get(1));
                 jsonResultTextView = findViewById(R.id.resultTextView);
-                jsonResultTextView.setText("分割结果: "+data.toString());
+//                jsonResultTextView.setText("分割结果: "+data.toString());
                 jsonPoseTextView = findViewById(R.id.poseTextView);
-                jsonPoseTextView.setText("pose序列: "+pose.toString());
+//                jsonPoseTextView.setText("pose序列: "+pose.toString());
                 System.out.println("JSONArray 的形状（长度）为: " + pose.length());
                 System.out.println("pose.getJSONArray(0): " + pose.getJSONArray(0).getJSONArray(0));
                 DrawActivity.poseArrays = pose;
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // 代码执行完毕后，在主线程中弹窗通知已经接收到服务器的response
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast toast = Toast.makeText(MainActivity.this, "服务器处理完毕", Toast.LENGTH_SHORT);
-                                toast.setGravity(0, 0, 16);
-                                toast.show();
-                            }
-                        });
-                    }
-                }).start();
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        // 代码执行完毕后，在主线程中弹窗通知已经接收到服务器的response
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Toast toast = Toast.makeText(MainActivity.this, "服务器处理完毕", Toast.LENGTH_SHORT);
+//                                toast.setGravity(0, 0, 16);
+//                                toast.show();
+//                            }
+//                        });
+//                    }
+//                }).start();
             }catch(JSONException e){
                 e.printStackTrace();
             }
