@@ -73,7 +73,7 @@
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
             android:gravity="center"
-            android:text="@string/no_camera_access" />
+            android:text="没有相机权限" />
 
         <SurfaceView
             android:id="@+id/previewSV"
@@ -193,24 +193,64 @@
             android:id="@+id/TrySkeletonButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="尝试画骨骼"
+            android:text="分割结果展示(骨骼)"
             android:layout_below="@+id/startAnimationButton"
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp"/>
         <Button
-            android:id="@+id/test1Button"
+            android:id="@+id/weigui"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="测试引体向上"
+            android:text="违规评估"
             android:layout_below="@+id/TrySkeletonButton"
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp"/>
         <Button
-            android:id="@+id/test2Button"
+            android:id="@+id/test_stu6_29_Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="测试深蹲"
-            android:layout_below="@+id/test1Button"
+            android:text="测试引体向上-stu6_29"
+            android:layout_below="@+id/weigui"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp"/>
+        <Button
+            android:id="@+id/test_stu8_69_Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="测试深蹲-stu8_69"
+            android:layout_below="@+id/test_stu6_29_Button"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp"/>
+        <Button
+            android:id="@+id/test_stu1_68_Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="测试深蹲-stu1_68"
+            android:layout_below="@+id/test_stu8_69_Button"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp"/>
+        <Button
+            android:id="@+id/test_stu8_30_Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="测试开合跳-stu8_30"
+            android:layout_below="@+id/test_stu1_68_Button"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp"/>
+        <Button
+            android:id="@+id/test_stu7_34_Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="测试开合跳-stu7_34"
+            android:layout_below="@+id/test_stu8_30_Button"
+            tools:layout_editor_absoluteX="146dp"
+            tools:layout_editor_absoluteY="132dp"/>
+        <Button
+            android:id="@+id/sampleVideoSendButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="传输标准样例"
+            android:layout_below="@+id/test_stu7_34_Button"
             tools:layout_editor_absoluteX="146dp"
             tools:layout_editor_absoluteY="132dp"/>
 
@@ -246,6 +286,12 @@
             android:layout_below="@id/resultTextView"
             android:layout_marginTop="16dp"
             android:layout_centerHorizontal="true"/>
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/poseTextView"
+            android:layout_centerInParent="true" />
     </RelativeLayout>
 
 <!--    <RelativeLayout-->

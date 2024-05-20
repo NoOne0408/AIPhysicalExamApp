@@ -1,16 +1,29 @@
 package com.example.mediapipeposetracking;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
+import android.media.ImageReader;
+import android.media.MediaCodec;
+import android.media.MediaFormat;
+import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.util.Size;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -20,16 +33,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.os.AsyncTask;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
+
+import java.io.File;
 import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import utils.Dialog;
+import utils.NetworkTask;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -68,7 +90,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import android.content.res.AssetManager;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import android.media.MediaRecorder;
+import android.os.Environment;
+import android.widget.VideoView;
 
 /**
  * Main activity of MediaPipe example apps.
@@ -112,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
     public static ApplicationInfo applicationInfo;
     // Handles camera access via the {@link CameraX} Jetpack support library.
     public static CameraXPreviewHelper cameraHelper;
+    private MediaRecorder mediaRecorder;
+    private boolean isRecording = false;
 
 
     ObliquePullUps obliquePullUps = new ObliquePullUps();
@@ -327,6 +353,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean isLuZhi = false;
     private List<List> poseFinalList = new ArrayList();
     private static TextView zzzzTextView;
+    static public String actionType = "";
+    Dialog dialog = new Dialog();
     public void poseDetectionAndSendToServer() {
         tvCount = findViewById(R.id.count_result);
         tvAction = findViewById(R.id.action_advice);
@@ -383,12 +411,62 @@ public class MainActivity extends AppCompatActivity {
         onResumeTest();
 
 
+
         try {
             applicationInfo =
                     getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
         } catch (NameNotFoundException e) {
             Log.e(TAG, "Cannot find application info: " + e);
         }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            System.out.println("让我康康有没有执行"+Build.VERSION.SDK_INT);
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    1
+            );
+        }
+        if (Build.VERSION.SDK_INT >= 23) {
+            int REQUEST_CODE_CONTACT = 10;
+            String[] permissions = {Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+            //验证是否许可权限
+            for (String str : permissions) {
+                if (this.checkSelfPermission(str) != PackageManager.PERMISSION_GRANTED) {
+                    System.out.println("验证权限，此权限验证失败："+str);
+                    //申请权限
+                    ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE_CONTACT);
+                    return;
+                }
+            }
+        }
+
+        try {
+            //  获取当前应用的私有目录
+            File privateDir = this.getFilesDir();
+            System.out.println("当前文件夹名称:"+privateDir.toString());
+
+            //  获取父目录
+            File parentDir = privateDir.getParentFile();
+
+            //  获取父目录的父目录
+            File grandParentDir = parentDir.getParentFile().getParentFile().getParentFile();
+            System.out.println("父目录父目录文件夹名称:"+grandParentDir.toString());
+
+            //  获取并打印所有文件
+            File[] files = privateDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    System.out.println("文件名称:"+file.getName());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
 
         previewDisplayView = new SurfaceView(this);
         setupPreviewDisplayView();
@@ -408,8 +486,12 @@ public class MainActivity extends AppCompatActivity {
         Button TrySkeletonButton = findViewById(R.id.TrySkeletonButton); //尝试绘画骨骼动画
         Button ShowResultLayoutCloseButton = findViewById(R.id.ShowResultLayoutCloseButton); //从展示页面返回主页面
         zzzzTextView = findViewById(R.id.zzzzTextView);
-        Button test1Button = findViewById(R.id.test1Button); //引体向上测试
-        Button test2Button = findViewById(R.id.test2Button); //深蹲测试
+        Button test_stu6_29_Button = findViewById(R.id.test_stu6_29_Button); //引体向上测试
+        Button test_stu8_69_Button = findViewById(R.id.test_stu8_69_Button); //深蹲测试
+        Button test_stu1_68_Button = findViewById(R.id.test_stu1_68_Button); //深蹲测试
+        Button test_stu8_30_Button = findViewById(R.id.test_stu8_30_Button); //开合跳测试
+        Button test_stu7_34_Button = findViewById(R.id.test_stu7_34_Button); //开合跳测试
+        Button sampleVideoSendButton = findViewById(R.id.sampleVideoSendButton); //发送标准样例给服务端
 
         Button button_close = findViewById(R.id.button_close);
 
@@ -476,11 +558,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // 在按钮点击时执行的操作
                 isLuZhi = false;
-                sendJsonToServer(poseFinalList,"深蹲单个动作特征序列");
+                sendJsonToServer(poseFinalList,actionType);
             }
         });
 
-        test1Button.setOnClickListener(new View.OnClickListener() {
+        test_stu6_29_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 在按钮点击时执行的操作
@@ -520,7 +602,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         poseToServer.add(poseSubList);
                     }
-                    sendJsonToServer(poseToServer,"相机的引体向上正面特征序列");
+                    sendJsonToServer(poseToServer,"相机的引体向上正面");
 
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
@@ -528,14 +610,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        test2Button.setOnClickListener(new View.OnClickListener() {
+        test_stu8_69_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 在按钮点击时执行的操作
                 try {
                     Context context = getApplicationContext();
                     AssetManager assetManager = context.getAssets();
-                    InputStream inputStream = assetManager.open("深蹲视频骨骼序列.json");
+                    InputStream inputStream = assetManager.open("stu8_69_完整.json");
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                     StringBuilder stringBuilder = new StringBuilder();
                     String line;
@@ -568,7 +650,151 @@ public class MainActivity extends AppCompatActivity {
                         }
                         poseToServer.add(poseSubList);
                     }
-                    sendJsonToServer(poseToServer,"深蹲单个动作特征序列");
+                    sendJsonToServer(poseToServer,"深蹲居中且归一化单次");
+
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        test_stu1_68_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 在按钮点击时执行的操作
+                try {
+                    Context context = getApplicationContext();
+                    AssetManager assetManager = context.getAssets();
+                    InputStream inputStream = assetManager.open("stu1_68_完整.json");
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(line);
+                    }
+
+                    bufferedReader.close();
+
+                    // 将读取的 JSON 字符串转换为 JSONArray
+                    JSONArray jsonArray = new JSONArray(stringBuilder.toString());
+                    System.out.println(jsonArray);
+                    System.out.println(jsonArray.length());
+                    List<List> poseToServer = new ArrayList<>();
+
+                    for(int i=0;i<jsonArray.length();i++){
+                        List<List<Float>> poseSubList = new ArrayList<>();
+                        JSONArray poseArray = jsonArray.getJSONArray(i);
+                        for(int j=0;j<33;j++){
+                            JSONArray poseXYZ = poseArray.getJSONArray(j);
+                            float xxx = Float.valueOf(String.valueOf(poseXYZ.get(0)));
+                            float yyy = Float.valueOf(String.valueOf(poseXYZ.get(1)));
+                            float zzz = Float.valueOf(String.valueOf(poseXYZ.get(2)));
+                            List<Float> innerList = new ArrayList<>();
+                            innerList.add(xxx);
+                            innerList.add(yyy);
+                            innerList.add(zzz);
+                            poseSubList.add(innerList);
+                        }
+                        poseToServer.add(poseSubList);
+                    }
+                    sendJsonToServer(poseToServer,"深蹲居中且归一化单次");
+
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        test_stu8_30_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 在按钮点击时执行的操作
+                try {
+                    Context context = getApplicationContext();
+                    AssetManager assetManager = context.getAssets();
+                    InputStream inputStream = assetManager.open("stu8_30.json");
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(line);
+                    }
+
+                    bufferedReader.close();
+
+                    // 将读取的 JSON 字符串转换为 JSONArray
+                    JSONArray jsonArray = new JSONArray(stringBuilder.toString());
+                    System.out.println(jsonArray);
+                    System.out.println(jsonArray.length());
+                    List<List> poseToServer = new ArrayList<>();
+
+                    for(int i=0;i<jsonArray.length();i++){
+                        List<List<Float>> poseSubList = new ArrayList<>();
+                        JSONArray poseArray = jsonArray.getJSONArray(i);
+                        for(int j=0;j<33;j++){
+                            JSONArray poseXYZ = poseArray.getJSONArray(j);
+                            float xxx = Float.valueOf(String.valueOf(poseXYZ.get(0)));
+                            float yyy = Float.valueOf(String.valueOf(poseXYZ.get(1)));
+                            float zzz = Float.valueOf(String.valueOf(poseXYZ.get(2)));
+                            List<Float> innerList = new ArrayList<>();
+                            innerList.add(xxx);
+                            innerList.add(yyy);
+                            innerList.add(zzz);
+                            poseSubList.add(innerList);
+                        }
+                        poseToServer.add(poseSubList);
+                    }
+                    sendJsonToServer(poseToServer,"开合跳居中且归一化单次");
+
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        test_stu7_34_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 在按钮点击时执行的操作
+                try {
+                    Context context = getApplicationContext();
+                    AssetManager assetManager = context.getAssets();
+                    InputStream inputStream = assetManager.open("stu7_34.json");
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(line);
+                    }
+
+                    bufferedReader.close();
+
+                    // 将读取的 JSON 字符串转换为 JSONArray
+                    JSONArray jsonArray = new JSONArray(stringBuilder.toString());
+                    System.out.println(jsonArray);
+                    System.out.println(jsonArray.length());
+                    List<List> poseToServer = new ArrayList<>();
+
+                    for(int i=0;i<jsonArray.length();i++){
+                        List<List<Float>> poseSubList = new ArrayList<>();
+                        JSONArray poseArray = jsonArray.getJSONArray(i);
+                        for(int j=0;j<33;j++){
+                            JSONArray poseXYZ = poseArray.getJSONArray(j);
+                            float xxx = Float.valueOf(String.valueOf(poseXYZ.get(0)));
+                            float yyy = Float.valueOf(String.valueOf(poseXYZ.get(1)));
+                            float zzz = Float.valueOf(String.valueOf(poseXYZ.get(2)));
+                            List<Float> innerList = new ArrayList<>();
+                            innerList.add(xxx);
+                            innerList.add(yyy);
+                            innerList.add(zzz);
+                            poseSubList.add(innerList);
+                        }
+                        poseToServer.add(poseSubList);
+                    }
+                    sendJsonToServer(poseToServer,"开合跳居中且归一化单次");
 
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
@@ -580,6 +806,28 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 在按钮点击时执行的操作
+                sendRequest("http://10.112.132.13:5000/getSampleVideoInformation", new NetworkTask.OnTaskCompleted() {
+                    @Override
+                    public void onTaskCompleted(String result) {
+                        // 处理响应
+                        try{
+                            JSONObject jsonObject = new JSONObject(result);
+                            System.out.println("JSONObject:");
+                            System.out.println(jsonObject);
+                            JSONArray data = jsonObject.getJSONArray("data");
+                            List<String> list = new ArrayList<>();
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONArray nameAndTime = data.getJSONArray(i);
+                                list.add(nameAndTime.getString(0));
+                            }
+                            System.out.println(data.get(0));
+                            dialog.showSampleInformationDialog(MainActivity.this,list);
+                        }catch(JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
                 poseFinalList = new ArrayList<>();
                 project_name = "PoseSegmentation";
                 onResumeTest();
@@ -600,6 +848,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Hide preview display until we re-open the camera again.
                 previewDisplayView.setVisibility(View.GONE);
+                zzzzTextView.setText("");
 
             }
         });
@@ -631,6 +880,43 @@ public class MainActivity extends AppCompatActivity {
 
                 // Hide preview display until we re-open the camera again.
                 previewDisplayView.setVisibility(View.GONE);
+
+                VideoView videoView = findViewById(R.id.videoView);
+                String videoPath = "/data/user/0/com.example.mediapipe_posetracking/files/myvideo.mp4";
+                Uri videoUri = Uri.parse(videoPath);
+                videoView.setVideoURI(videoUri);
+                videoView.start();
+
+
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                try {
+//                    String videoPath = "/data/user/0/com.example.mediapipe_posetracking/files/myvideo.mp4";
+//                    Uri videoUri = Uri.parse(videoPath);
+                    Context context = getApplicationContext();
+                    mediaPlayer.setDataSource(context, videoUri);
+                    mediaPlayer.prepare(); //  或者使用异步的prepareAsync()方法
+                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            // 跳转到第5秒
+                            mediaPlayer.seekTo(1000); //  时间单位是毫秒
+                            mediaPlayer.start();
+
+                            //  设置一个监听器，当播放到第10秒时停止播放
+                            mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                                @Override
+                                public void onSeekComplete(MediaPlayer mp) {
+                                    if (mp.getCurrentPosition() >=  10000) {
+                                        mp.stop();
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
         });
 
@@ -654,6 +940,18 @@ public class MainActivity extends AppCompatActivity {
 
                 // Hide preview display until we re-open the camera again.
                 previewDisplayView.setVisibility(View.GONE);
+
+            }
+        });
+
+        sampleVideoSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
 
             }
         });
@@ -814,7 +1112,8 @@ public class MainActivity extends AppCompatActivity {
                         new SurfaceHolder.Callback() {
                             @Override
                             public void surfaceCreated(SurfaceHolder holder) {
-                                processor.getVideoSurfaceOutput().setSurface(holder.getSurface());
+                                Surface surface = holder.getSurface();
+                                processor.getVideoSurfaceOutput().setSurface(surface);
                             }
 
                             @Override
@@ -828,6 +1127,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
     }
+
 
     private void sendJsonToServer(List poseFinalList, String actionType) {
         // 创建 JSON 对象
@@ -915,4 +1215,54 @@ public class MainActivity extends AppCompatActivity {
 //            System.out.println("onPostExecute:"+result);
         }
     }
+
+
+    private void startRecording() {
+        // mediapipe 开始处理摄像头流...
+
+        // 设置 MediaRecorder 参数
+        mediaRecorder = new MediaRecorder();
+
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+
+        // 设置输出文件路径
+//        String fileName = Environment.getExternalStorageDirectory() + "/myvideo.mp4";
+        String fileName = "/data/user/0/com.example.mediapipe_posetracking/files/myvideo.mp4";
+        mediaRecorder.setOutputFile(fileName);
+        System.out.println("startRecording函数开始执行");
+
+//        SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+
+        Surface surface = new Surface(previewFrameTexture);
+        mediaRecorder.setPreviewDisplay(surface);
+
+        // 其他设置参数...
+
+            try {
+                mediaRecorder.prepare();
+                mediaRecorder.start();
+                isRecording = true;
+                System.out.println("startRecording函数执行完毕");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
+
+    private void stopRecording() {
+        System.out.println("开始执行stopRecording");
+        mediaRecorder.stop();
+        mediaRecorder.release();
+        mediaRecorder = null;
+        isRecording = false;
+        System.out.println("stopRecording函数执行完毕");
+    }
+
+    static private void sendRequest(String url, NetworkTask.OnTaskCompleted listener) {
+        System.out.println("sendRequest这个函数执行了");
+        new NetworkTask(listener).execute(url);
+    }
+
+
 }

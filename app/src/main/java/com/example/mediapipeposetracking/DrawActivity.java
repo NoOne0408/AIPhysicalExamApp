@@ -6,8 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.view.ViewGroup;
 import android.os.Handler;
 import android.os.Looper;
@@ -32,16 +34,39 @@ public class DrawActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         // 设置Activity的ContentView为自定义的DrawView
-//        setContentView(new DrawView(this));
+        setContentView(R.layout.activity_scrollable);
+
+        TextView textView = new TextView(this);
+        textView.setText("检测到深蹲的动作次数: "+(DrawActivity.segmentationData.length()-1));
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        RelativeLayout.LayoutParams kkk = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        // 设置按钮在父布局中的位置，顶部对齐，上边距 5px
+        kkk.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        kkk.topMargin = 5 ; // 垂直方向上的间隔
+        kkk.leftMargin = 0;
+        kkk.width = 540;
+        textView.setLayoutParams(kkk);
+        // 将文本添加到布局中
+        addContentView(textView, kkk);
 
         // 添加返回按钮
         for(int i=0;i<DrawActivity.segmentationData.length();i++){
-            Button backButton = new Button(this);
-            backButton.setText("动作片段"+(i+1));
             try{
+
                 JSONArray segmentationSubJSONArray = DrawActivity.segmentationData.getJSONArray(i);
                 final int left = Integer.valueOf(String.valueOf(segmentationSubJSONArray.get(0)));
                 final int right = Integer.valueOf(String.valueOf(segmentationSubJSONArray.get(1)));
+                Button backButton = new Button(this);
+                if(i<DrawActivity.segmentationData.length()-1){
+                    backButton.setText("深蹲动作单次片段"+(i+1)+" 时间区间:"+left+"-"+right);
+                }
+                else{
+                    backButton.setText("视频完整骨骼序列");
+                }
+
                 backButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -52,20 +77,7 @@ public class DrawActivity extends Activity {
                         setContentView(new DrawView(left,right,context));
                     }
                 });
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
-//            backButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    setContentView(new DrawView(DrawActivity.this));
-//                    // 点击按钮时关闭当前Activity，返回到前一个Activity
-////                    finish();
-//                    Context context = getApplicationContext();
-//                    setContentView(new DrawView(left,left,context));
-//                }
-//            });
 
             // 创建布局参数，设置按钮在界面中的位置
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
@@ -74,11 +86,16 @@ public class DrawActivity extends Activity {
             );
             // 设置按钮在父布局中的位置，顶部对齐，上边距 5px
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-            layoutParams.topMargin = 5 + i * 100; // 垂直方向上的间隔
+            layoutParams.topMargin = 5 + (i%22+2) * 100; // 垂直方向上的间隔
+            layoutParams.leftMargin = (i/22) * 540;
+            layoutParams.width = 900;
             backButton.setLayoutParams(layoutParams);
 
             // 将按钮添加到布局中
             addContentView(backButton, layoutParams);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -87,6 +104,7 @@ public class DrawActivity extends Activity {
 
         private Paint paint;
         private Paint paintPoint;
+        private Paint paintText;
         private int linesToDraw = 200;
         private int currentLine = 0;
         private Handler handler;
@@ -114,6 +132,10 @@ public class DrawActivity extends Activity {
             paintPoint = new Paint();
             paintPoint.setColor(Color.YELLOW);
             paintPoint.setStrokeWidth(10);
+            paintText = new Paint();
+            paintText.setColor(Color.BLACK);
+            paintText.setTextSize(50);
+            paintText.setAntiAlias(true);
 
             handler = new Handler(Looper.getMainLooper());
         }
@@ -240,6 +262,9 @@ public class DrawActivity extends Activity {
                     canvas.drawPoint(x22,y22,paintPoint);
                     canvas.drawPoint(x23,y23,paintPoint);
                     canvas.drawPoint(x24,y24,paintPoint);
+
+                    canvas.drawText("帧:"+Integer.toString(currentLine), 100, 100, paintText);
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
